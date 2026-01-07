@@ -1,0 +1,29 @@
+{
+  "name": "@repo/db",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts"
+  },
+  "scripts": {
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "push": "drizzle-kit push",
+    "studio": "drizzle-kit studio",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.39.1",
+    "postgres": "^3.4.5",
+    "dotenv": "^16.4.7",
+    "@supabase/supabase-js": "^2.48.1"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.4",
+    "@types/node": "^22.10.7",
+    "typescript": "^5.7.3",
+    "tsx": "^4.19.2",
+    "@repo/typescript-config": "workspace:*"
+  }
+}
