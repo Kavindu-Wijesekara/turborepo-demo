@@ -33,7 +33,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Define route groups
-  const authRoutes = ["/login"];
+  const authRoutes = ["/login", "/signup"];
   const publicRoutes = ["/", "/callback"];
   const onboardingRoutes = ["/complete-profile"];
   const protectedRoutes = ["/dashboard", "/team", "/settings"];

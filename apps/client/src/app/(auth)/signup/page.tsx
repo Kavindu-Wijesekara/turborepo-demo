@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { signInWithEmail, signInWithGoogle } from "../actions";
+import { signUpWithEmail, signUpWithGoogle } from "../actions";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
@@ -15,17 +15,17 @@ import {
   CardFooter,
 } from "@repo/ui/components/card";
 
-export default function LoginPage() {
-  const [state, formAction] = useActionState(signInWithEmail, null);
+export default function SignUpPage() {
+  const [state, formAction] = useActionState(signUpWithEmail, null);
 
   return (
     <Card className="w-full">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Welcome Back</CardTitle>
-        <CardDescription>Sign in to your account</CardDescription>
+        <CardTitle className="text-2xl">Create Account</CardTitle>
+        <CardDescription>Sign up to get started</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Email Sign In Form */}
+        {/* Email Sign Up Form */}
         <form action={formAction} className="space-y-4">
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="email">Email</Label>
@@ -42,9 +42,9 @@ export default function LoginPage() {
               className={`text-sm ${state.success ? "text-green-600" : "text-red-600"}`}
             >
               {state.message}
-              {!state.success && state.message.includes("sign up") && (
-                <Link href="/signup" className="ml-1 underline font-medium">
-                  Sign up here
+              {!state.success && state.message.includes("sign in") && (
+                <Link href="/login" className="ml-1 underline font-medium">
+                  Sign in here
                 </Link>
               )}
             </p>
@@ -64,8 +64,8 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Google Sign In */}
-        <form action={signInWithGoogle}>
+        {/* Google Sign Up */}
+        <form action={signUpWithGoogle}>
           <Button variant="outline" className="w-full" type="submit">
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
               <path
@@ -91,9 +91,9 @@ export default function LoginPage() {
       </CardContent>
       <CardFooter className="flex justify-center">
         <p className="text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-primary underline font-medium">
-            Sign up
+          Already have an account?{" "}
+          <Link href="/login" className="text-primary underline font-medium">
+            Sign in
           </Link>
         </p>
       </CardFooter>
