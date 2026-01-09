@@ -11,6 +11,7 @@
     "migrate": "drizzle-kit migrate",
     "push": "drizzle-kit push",
     "studio": "drizzle-kit studio",
+    "seed": "tsx src/seed.ts",
     "lint": "eslint ."
   },
   "dependencies": {

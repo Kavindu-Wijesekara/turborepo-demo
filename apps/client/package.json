@@ -13,6 +13,7 @@
     "@repo/ui": "workspace:*",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.48.1",
+    "drizzle-orm": "^0.39.1",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3"

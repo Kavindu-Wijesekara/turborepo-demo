@@ -15,7 +15,8 @@ export default function Home() {
               elements: {
                 footer: "hidden",
               },
-            }} />
+            }}
+          />
         </SignedOut>
         <SignedIn>
           <UserButton />

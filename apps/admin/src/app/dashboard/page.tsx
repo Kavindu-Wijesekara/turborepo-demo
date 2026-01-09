@@ -1,19 +1,60 @@
+import { db, users, posts, organizations, services, count } from "@repo/db";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@repo/ui/components/card";
 
-import { UserButton } from "@clerk/nextjs";
+export default async function DashboardPage() {
+  // Fetch counts
+  const [usersCount] = await db.select({ count: count() }).from(users);
+  const [postsCount] = await db.select({ count: count() }).from(posts);
+  const [orgsCount] = await db.select({ count: count() }).from(organizations);
+  const [servicesCount] = await db.select({ count: count() }).from(services);
 
-export default function Dashboard() {
+  const stats = [
+    {
+      label: "Total Users",
+      value: usersCount?.count || 0,
+      color: "text-blue-600",
+    },
+    {
+      label: "Total Posts",
+      value: postsCount?.count || 0,
+      color: "text-green-600",
+    },
+    {
+      label: "Organizations",
+      value: orgsCount?.count || 0,
+      color: "text-purple-600",
+    },
+    {
+      label: "Services",
+      value: servicesCount?.count || 0,
+      color: "text-orange-600",
+    },
+  ];
+
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <header className="flex items-center justify-between px-6 py-4 border-b bg-card">
-        <h1 className="text-xl font-semibold">Admin Dashboard</h1>
-        <UserButton />
-      </header>
-      <main className="flex-1 p-6">
-        <div className="p-6 border rounded-lg shadow-sm bg-card">
-          <h2 className="text-lg font-medium">Welcome to Admin Panel</h2>
-          <p className="text-muted-foreground">Manage your application from here.</p>
-        </div>
-      </main>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold">Overview</h2>
+        <p className="text-muted-foreground">Platform statistics at a glance</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <Card key={stat.label}>
+            <CardHeader className="pb-2">
+              <CardDescription>{stat.label}</CardDescription>
+              <CardTitle className={`text-3xl ${stat.color}`}>
+                {stat.value}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
