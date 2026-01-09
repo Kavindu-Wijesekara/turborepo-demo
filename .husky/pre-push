@@ -1,9 +1,17 @@
-echo "🔍 Running pre-push validation..."
-pnpm run check-types
+set -e
 
-if [ $? -ne 0 ]; then
-  echo "❌ Type check failed. Please fix the issues and try again."
+echo "🚀 Running pre-push validation..."
+
+echo "📝 Checking types..."
+if ! pnpm check-types; then
+  echo "❌ TypeScript type check failed. Please check the output above and fix type errors."
   exit 1
 fi
 
-echo "✅ Pre-push checks passed!"
+echo "🏗️  Building packages..."
+if ! pnpm build; then
+  echo "❌ Build failed. Please check the output above and fix build errors."
+  exit 1
+fi
+
+echo "✅ All pre-push checks passed! Safe to push."

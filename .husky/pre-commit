@@ -1,11 +1,14 @@
+set -e
+
 echo "🎨 Formatting staged files..."
-pnpm exec lint-staged
+if ! pnpm exec lint-staged; then
+  echo "❌ Prettier formatting failed. Please check the output above."
+  exit 1
+fi
 
-echo "🔍 Running lint..."
-pnpm lint:fix
-
-if [ $? -ne 0 ]; then
-  echo "❌ Linting failed. Please fix the issues and try again."
+echo "🔍 Running linters..."
+if ! pnpm lint:fix; then
+  echo "❌ ESLint found issues. Please check the output above and fix them."
   exit 1
 fi
 
