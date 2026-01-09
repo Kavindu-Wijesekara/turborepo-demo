@@ -1,10 +1,5 @@
-import { db, users, posts, organizations, services, count } from "@repo/db";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@repo/ui/components/card";
+import { count, db, organizations, posts, services, users } from "@acme/db";
+import { Card, CardDescription, CardHeader, CardTitle } from "@acme/ui/components/card";
 
 export default async function DashboardPage() {
   // Fetch counts
@@ -48,9 +43,7 @@ export default async function DashboardPage() {
           <Card key={stat.label}>
             <CardHeader className="pb-2">
               <CardDescription>{stat.label}</CardDescription>
-              <CardTitle className={`text-3xl ${stat.color}`}>
-                {stat.value}
-              </CardTitle>
+              <CardTitle className={`text-3xl ${stat.color}`}>{stat.value}</CardTitle>
             </CardHeader>
           </Card>
         ))}

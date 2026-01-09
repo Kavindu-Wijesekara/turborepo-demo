@@ -1,15 +1,12 @@
-import { createClient } from "@/utils/supabase/server";
+import { db, eq } from "@acme/db";
+import { users } from "@acme/db/schema";
 import { redirect } from "next/navigation";
+
 import { DashboardNav } from "@/components/dashboard-nav";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
-import { db, eq } from "@repo/db";
-import { users } from "@repo/db/schema";
+import { createClient } from "@/utils/supabase/server";
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -30,9 +27,9 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
       <DashboardSidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex flex-1 flex-col">
         <DashboardNav user={user} userName={dbUser?.name} />
         <main className="flex-1 p-6">{children}</main>
       </div>

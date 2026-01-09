@@ -1,13 +1,13 @@
-import Link from "next/link";
+import { Button } from "@acme/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
-} from "@repo/ui/components/card";
-import { Button } from "@repo/ui/components/button";
+} from "@acme/ui/components/card";
+import Link from "next/link";
 
 type Props = {
   searchParams: Promise<{ email?: string; mode?: string }>;
@@ -27,14 +27,14 @@ export default async function LinkAccountPage({ searchParams }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground text-center">
+        <p className="text-muted-foreground text-center text-sm">
           {mode === "signin"
             ? "You're trying to sign in with Google, but this email is registered with a different sign-in method."
             : "This email is already registered with a different sign-in method."}
         </p>
-        <p className="text-sm text-muted-foreground text-center">
-          To link your Google account, please sign in with your original method
-          first, then connect Google from your account settings.
+        <p className="text-muted-foreground text-center text-sm">
+          To link your Google account, please sign in with your original method first, then connect
+          Google from your account settings.
         </p>
         <div className="space-y-2">
           <Button className="w-full" asChild>
@@ -43,9 +43,8 @@ export default async function LinkAccountPage({ searchParams }: Props) {
         </div>
       </CardContent>
       <CardFooter className="flex justify-center">
-        <p className="text-xs text-muted-foreground text-center">
-          After signing in, you can link your Google account from Settings &gt;
-          Connected Accounts.
+        <p className="text-muted-foreground text-center text-xs">
+          After signing in, you can link your Google account from Settings &gt; Connected Accounts.
         </p>
       </CardFooter>
     </Card>

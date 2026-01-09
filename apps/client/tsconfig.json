@@ -20,8 +20,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      // "@repo/*": ["../../packages/*/src"]
-      "@repo/ui/*": ["../../packages/ui/src/*"]
+      // "@acme/*": ["../../packages/*/src"]
+      "@acme/ui/*": ["../../packages/ui/src/*"]
     }
   },
   "include": [

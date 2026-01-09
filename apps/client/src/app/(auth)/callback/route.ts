@@ -1,7 +1,8 @@
+import { db, eq } from "@acme/db";
+import { users } from "@acme/db/schema";
 import { NextResponse } from "next/server";
+
 import { createClient } from "@/utils/supabase/server";
-import { db, eq } from "@repo/db";
-import { users } from "@repo/db/schema";
 
 type AuthType = "login" | "signup";
 
@@ -34,7 +35,7 @@ export async function GET(request: Request) {
     if (error) {
       console.error("[Auth Callback] Exchange error:", error.message);
       return NextResponse.redirect(
-        `${origin}/auth-error?error=${encodeURIComponent(error.message)}`,
+        `${origin}/auth-error?error=${encodeURIComponent(error.message)}`
       );
     }
 
@@ -65,21 +66,17 @@ export async function GET(request: Request) {
     if (type === "signup") {
       // Case 1: User exists by authId - they already signed up before
       if (dbUser) {
-        console.log(
-          "[Auth Callback] Signup: User already exists by authId, redirecting",
-        );
+        console.log("[Auth Callback] Signup: User already exists by authId, redirecting");
         return NextResponse.redirect(
-          `${origin}${dbUser.profileCompleted ? "/dashboard" : "/complete-profile"}`,
+          `${origin}${dbUser.profileCompleted ? "/dashboard" : "/complete-profile"}`
         );
       }
 
       // Case 2: User exists by email but different authId (account linking scenario)
       if (dbUserByEmail && dbUserByEmail.authId !== data.user.id) {
-        console.log(
-          "[Auth Callback] Signup: Email exists with different auth provider",
-        );
+        console.log("[Auth Callback] Signup: Email exists with different auth provider");
         return NextResponse.redirect(
-          `${origin}/link-account?email=${encodeURIComponent(userEmail)}`,
+          `${origin}/link-account?email=${encodeURIComponent(userEmail)}`
         );
       }
 
@@ -100,19 +97,17 @@ export async function GET(request: Request) {
       // Case 1: User exists by authId - normal login
       if (dbUser) {
         console.log("[Auth Callback] Login: User found, proceeding");
-        const redirectTo =
-          next ||
-          (dbUser.profileCompleted ? "/dashboard" : "/complete-profile");
+        const redirectTo = next || (dbUser.profileCompleted ? "/dashboard" : "/complete-profile");
         return NextResponse.redirect(`${origin}${redirectTo}`);
       }
 
       // Case 2: User exists by email but different authId (Google login but email-registered account)
       if (dbUserByEmail && dbUserByEmail.authId !== data.user.id) {
         console.log(
-          "[Auth Callback] Login: Account exists with different provider, prompt to link",
+          "[Auth Callback] Login: Account exists with different provider, prompt to link"
         );
         return NextResponse.redirect(
-          `${origin}/link-account?email=${encodeURIComponent(userEmail)}&mode=signin`,
+          `${origin}/link-account?email=${encodeURIComponent(userEmail)}&mode=signin`
         );
       }
 
@@ -121,7 +116,7 @@ export async function GET(request: Request) {
       // Sign out the Supabase session since we're rejecting this login
       await supabase.auth.signOut();
       return NextResponse.redirect(
-        `${origin}/auth-error?error=${encodeURIComponent("No account found with this email. Please sign up first.")}&redirect=/signup`,
+        `${origin}/auth-error?error=${encodeURIComponent("No account found with this email. Please sign up first.")}&redirect=/signup`
       );
     }
 

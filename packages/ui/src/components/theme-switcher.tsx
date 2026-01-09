@@ -1,8 +1,8 @@
 "use client";
 
-import { useTheme } from "next-themes";
+import { Button } from "@acme/ui/components/button";
 import { Moon, Sun } from "lucide-react";
-import { Button } from "@repo/ui/components/button";
+import { useTheme } from "next-themes";
 import { useRef } from "react";
 
 export function ThemeSwitcher() {
@@ -28,7 +28,7 @@ export function ThemeSwitcher() {
     // Calculate the radius needed to cover the entire screen from click point
     const endRadius = Math.hypot(
       Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y),
+      Math.max(y, window.innerHeight - y)
     );
 
     // Start the view transition
@@ -42,16 +42,13 @@ export function ThemeSwitcher() {
     // Animate the circular reveal
     document.documentElement.animate(
       {
-        clipPath: [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${endRadius}px at ${x}px ${y}px)`,
-        ],
+        clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`],
       },
       {
         duration: 500,
         easing: "ease-in-out",
         pseudoElement: "::view-transition-new(root)",
-      },
+      }
     );
   };
 

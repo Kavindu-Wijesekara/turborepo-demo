@@ -1,8 +1,8 @@
 "use server";
 
+import { db, eq } from "@acme/db";
+import { users } from "@acme/db/schema";
 import { revalidatePath } from "next/cache";
-import { db, eq } from "@repo/db";
-import { users } from "@repo/db/schema";
 
 export async function deleteUser(userId: number) {
   try {

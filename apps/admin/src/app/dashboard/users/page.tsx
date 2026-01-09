@@ -1,11 +1,8 @@
-import { db } from "@repo/db";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/card";
+import { db } from "@acme/db";
+import { Card, CardContent, CardHeader, CardTitle } from "@acme/ui/components/card";
+
 import { DeleteButton } from "@/components/delete-button";
+
 import { deleteUser } from "./actions";
 
 export default async function UsersPage() {
@@ -20,9 +17,7 @@ export default async function UsersPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Users Management</h2>
-        <p className="text-muted-foreground">
-          View and manage all registered users
-        </p>
+        <p className="text-muted-foreground">View and manage all registered users</p>
       </div>
 
       <Card>
@@ -34,34 +29,27 @@ export default async function UsersPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">ID</th>
-                  <th className="text-left py-3 px-4 font-medium">Name</th>
-                  <th className="text-left py-3 px-4 font-medium">Email</th>
-                  <th className="text-left py-3 px-4 font-medium">Phone</th>
-                  <th className="text-left py-3 px-4 font-medium">
-                    Organization
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium">Profile</th>
-                  <th className="text-left py-3 px-4 font-medium">Created</th>
-                  <th className="text-left py-3 px-4 font-medium">Actions</th>
+                  <th className="px-4 py-3 text-left font-medium">ID</th>
+                  <th className="px-4 py-3 text-left font-medium">Name</th>
+                  <th className="px-4 py-3 text-left font-medium">Email</th>
+                  <th className="px-4 py-3 text-left font-medium">Phone</th>
+                  <th className="px-4 py-3 text-left font-medium">Organization</th>
+                  <th className="px-4 py-3 text-left font-medium">Profile</th>
+                  <th className="px-4 py-3 text-left font-medium">Created</th>
+                  <th className="px-4 py-3 text-left font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {allUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="border-b hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
-                    <td className="py-3 px-4">{user.id}</td>
-                    <td className="py-3 px-4">{user.name || "-"}</td>
-                    <td className="py-3 px-4">{user.email}</td>
-                    <td className="py-3 px-4">{user.phone || "-"}</td>
-                    <td className="py-3 px-4">
-                      {user.organization?.name || "-"}
-                    </td>
-                    <td className="py-3 px-4">
+                  <tr key={user.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-4 py-3">{user.id}</td>
+                    <td className="px-4 py-3">{user.name || "-"}</td>
+                    <td className="px-4 py-3">{user.email}</td>
+                    <td className="px-4 py-3">{user.phone || "-"}</td>
+                    <td className="px-4 py-3">{user.organization?.name || "-"}</td>
+                    <td className="px-4 py-3">
                       <span
-                        className={`px-2 py-1 rounded text-xs ${
+                        className={`rounded px-2 py-1 text-xs ${
                           user.profileCompleted
                             ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                             : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
@@ -70,10 +58,10 @@ export default async function UsersPage() {
                         {user.profileCompleted ? "Complete" : "Incomplete"}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-muted-foreground">
+                    <td className="text-muted-foreground px-4 py-3">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="px-4 py-3">
                       <DeleteButton
                         itemName="User"
                         onDelete={async () => {
@@ -86,10 +74,7 @@ export default async function UsersPage() {
                 ))}
                 {allUsers.length === 0 && (
                   <tr>
-                    <td
-                      colSpan={8}
-                      className="py-8 text-center text-muted-foreground"
-                    >
+                    <td colSpan={8} className="text-muted-foreground py-8 text-center">
                       No users found
                     </td>
                   </tr>

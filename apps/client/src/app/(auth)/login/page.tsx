@@ -1,19 +1,20 @@
 "use client";
 
-import { useActionState } from "react";
-import Link from "next/link";
-import { signInWithEmail, signInWithGoogle } from "../actions";
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
+import { Button } from "@acme/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
-} from "@repo/ui/components/card";
+} from "@acme/ui/components/card";
+import { Input } from "@acme/ui/components/input";
+import { Label } from "@acme/ui/components/label";
+import Link from "next/link";
+import { useActionState } from "react";
+
+import { signInWithEmail, signInWithGoogle } from "../actions";
 
 export default function LoginPage() {
   const [state, formAction] = useActionState(signInWithEmail, null);
@@ -29,21 +30,13 @@ export default function LoginPage() {
         <form action={formAction} className="space-y-4">
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="name@example.com"
-              required
-            />
+            <Input id="email" name="email" type="email" placeholder="name@example.com" required />
           </div>
           {state?.message && (
-            <p
-              className={`text-sm ${state.success ? "text-green-600" : "text-red-600"}`}
-            >
+            <p className={`text-sm ${state.success ? "text-green-600" : "text-red-600"}`}>
               {state.message}
               {!state.success && state.message.includes("sign up") && (
-                <Link href="/signup" className="ml-1 underline font-medium">
+                <Link href="/signup" className="ml-1 font-medium underline">
                   Sign up here
                 </Link>
               )}
@@ -60,7 +53,7 @@ export default function LoginPage() {
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">Or</span>
+            <span className="bg-card text-muted-foreground px-2">Or</span>
           </div>
         </div>
 
@@ -90,9 +83,9 @@ export default function LoginPage() {
         </form>
       </CardContent>
       <CardFooter className="flex justify-center">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-primary underline font-medium">
+          <Link href="/signup" className="text-primary font-medium underline">
             Sign up
           </Link>
         </p>

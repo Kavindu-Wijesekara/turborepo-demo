@@ -1,16 +1,37 @@
 {
-  "name": "client",
+  "name": "@acme/client",
   "version": "0.1.0",
+  "description": "Client application for the Monorepo with Supabase authentication",
   "private": true,
+  "author": "Monorepo Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/monorepo",
+    "directory": "apps/client"
+  },
+  "homepage": "https://github.com/yourusername/monorepo",
+  "keywords": [
+    "client",
+    "application",
+    "next.js",
+    "supabase",
+    "typescript",
+    "tailwindcss"
+  ],
+  "bugs": {
+    "url": "https://github.com/yourusername/monorepo/issues"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "clean": "rm -rf .next"
   },
   "dependencies": {
-    "@repo/db": "workspace:*",
-    "@repo/ui": "workspace:*",
+    "@acme/db": "workspace:*",
+    "@acme/ui": "workspace:*",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.48.1",
     "next": "16.1.1",
@@ -25,6 +46,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "@acme/eslint-config": "workspace:*",
     "tailwindcss": "^4.1.0",
     "typescript": "^5"
   }

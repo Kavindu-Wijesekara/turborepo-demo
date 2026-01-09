@@ -1,11 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { createPost } from "@/app/(dashboard)/dashboard/actions";
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
-import { Textarea } from "@repo/ui/components/textarea";
+import { Button } from "@acme/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +9,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@repo/ui/components/dialog";
+} from "@acme/ui/components/dialog";
+import { Input } from "@acme/ui/components/input";
+import { Label } from "@acme/ui/components/label";
+import { Textarea } from "@acme/ui/components/textarea";
+import { useActionState, useEffect, useState } from "react";
+
+import { createPost } from "@/app/(dashboard)/dashboard/actions";
 
 export function CreatePostModal() {
   const [open, setOpen] = useState(false);
@@ -37,19 +38,12 @@ export function CreatePostModal() {
         <form action={formAction}>
           <DialogHeader>
             <DialogTitle>Create New Post</DialogTitle>
-            <DialogDescription>
-              Write a new post to share with your team.
-            </DialogDescription>
+            <DialogDescription>Write a new post to share with your team.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                name="title"
-                placeholder="Enter post title"
-                required
-              />
+              <Input id="title" name="title" placeholder="Enter post title" required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="content">Content</Label>
@@ -66,11 +60,7 @@ export function CreatePostModal() {
             )}
           </div>
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button type="submit">Create Post</Button>

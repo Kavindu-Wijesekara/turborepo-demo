@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Prettier",
+    "id": "esbenp.prettier-vscode",
+    "description": "Code formatter using prettier",
+    "recommended": true
+  },
+  {
+    "name": "ESLint",
+    "id": "dbaeumer.vscode-eslint",
+    "description": "Integrates ESLint JavaScript into VS Code",
+    "recommended": true
+  },
+  {
+    "name": "TypeScript Vue Plugin",
+    "id": "Vue.volar",
+    "description": "Vue 3 intellisense, debugging",
+    "recommended": false
+  },
+  {
+    "name": "Thunder Client",
+    "id": "rangav.vscode-thunder-client",
+    "description": "Test REST APIs",
+    "recommended": false
+  },
+  {
+    "name": "Tailwind CSS IntelliSense",
+    "id": "bradlc.vscode-tailwindcss",
+    "description": "Tailwind CSS class name completion",
+    "recommended": true
+  },
+  {
+    "name": "PostCSS Language Support",
+    "id": "csstools.postcss",
+    "description": "PostCSS language support",
+    "recommended": true
+  },
+  {
+    "name": "GitHub Copilot",
+    "id": "GitHub.copilot",
+    "description": "AI pair programmer",
+    "recommended": false
+  }
+]

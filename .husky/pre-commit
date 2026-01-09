@@ -1,0 +1,12 @@
+echo "🎨 Formatting staged files..."
+pnpm exec lint-staged
+
+echo "🔍 Running lint..."
+pnpm lint:fix
+
+if [ $? -ne 0 ]; then
+  echo "❌ Linting failed. Please fix the issues and try again."
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed!"

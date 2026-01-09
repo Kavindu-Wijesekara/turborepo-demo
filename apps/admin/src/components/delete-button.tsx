@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@acme/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@repo/ui/components/dialog";
+} from "@acme/ui/components/dialog";
+import { useState } from "react";
 
 interface DeleteButtonProps {
   onDelete: () => Promise<{ success: boolean; message: string }>;
@@ -36,7 +36,7 @@ export function DeleteButton({ onDelete, itemName }: DeleteButtonProps) {
         <Button
           variant="outline"
           size="sm"
-          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          className="text-red-600 hover:bg-red-50 hover:text-red-700"
         >
           Delete
         </Button>
@@ -45,23 +45,15 @@ export function DeleteButton({ onDelete, itemName }: DeleteButtonProps) {
         <DialogHeader>
           <DialogTitle>Delete {itemName}?</DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete the{" "}
-            {itemName.toLowerCase()} and all associated data.
+            This action cannot be undone. This will permanently delete the {itemName.toLowerCase()}{" "}
+            and all associated data.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => setOpen(false)}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
             Cancel
           </Button>
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={loading}
-          >
+          <Button variant="destructive" onClick={handleDelete} disabled={loading}>
             {loading ? "Deleting..." : "Delete"}
           </Button>
         </DialogFooter>

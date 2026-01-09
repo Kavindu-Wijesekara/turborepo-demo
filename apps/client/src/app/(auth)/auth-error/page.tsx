@@ -1,13 +1,13 @@
-import Link from "next/link";
+import { Button } from "@acme/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
-} from "@repo/ui/components/card";
-import { Button } from "@repo/ui/components/button";
+} from "@acme/ui/components/card";
+import Link from "next/link";
 
 type Props = {
   searchParams: Promise<{ error?: string; redirect?: string }>;
@@ -21,17 +21,11 @@ export default async function AuthErrorPage({ searchParams }: Props) {
   return (
     <Card className="w-full">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl text-destructive">
-          Authentication Error
-        </CardTitle>
-        <CardDescription>
-          We couldn&apos;t complete your request
-        </CardDescription>
+        <CardTitle className="text-destructive text-2xl">Authentication Error</CardTitle>
+        <CardDescription>We couldn&apos;t complete your request</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-center text-muted-foreground">
-          {decodeURIComponent(error)}
-        </p>
+        <p className="text-muted-foreground text-center">{decodeURIComponent(error)}</p>
       </CardContent>
       <CardFooter className="flex justify-center">
         <Button asChild>

@@ -1,15 +1,17 @@
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
-import { db, eq } from "@repo/db";
-import { users } from "@repo/db/schema";
+import { db, eq } from "@acme/db";
+import { users } from "@acme/db/schema";
+import { Button } from "@acme/ui/components/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-} from "@repo/ui/components/card";
-import { Button } from "@repo/ui/components/button";
+} from "@acme/ui/components/card";
+import { redirect } from "next/navigation";
+
+import { createClient } from "@/utils/supabase/server";
+
 import { linkGoogleAccount } from "./actions";
 
 export default async function SettingsPage() {
@@ -35,12 +37,10 @@ export default async function SettingsPage() {
   if (!dbUser) redirect("/complete-profile");
 
   // Check if Google is linked by looking at identities
-  const hasGoogleLinked = user.identities?.some(
-    (identity) => identity.provider === "google",
-  );
+  const hasGoogleLinked = user.identities?.some((identity) => identity.provider === "google");
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="max-w-2xl space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Settings</h2>
         <p className="text-muted-foreground">Manage your account settings</p>
@@ -55,22 +55,20 @@ export default async function SettingsPage() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-muted-foreground">Name</p>
+              <p className="text-muted-foreground text-sm">Name</p>
               <p className="font-medium">{dbUser.name || "Not set"}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Email</p>
+              <p className="text-muted-foreground text-sm">Email</p>
               <p className="font-medium">{dbUser.email}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Phone</p>
+              <p className="text-muted-foreground text-sm">Phone</p>
               <p className="font-medium">{dbUser.phone || "Not set"}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Member since</p>
-              <p className="font-medium">
-                {new Date(dbUser.createdAt).toLocaleDateString()}
-              </p>
+              <p className="text-muted-foreground text-sm">Member since</p>
+              <p className="font-medium">{new Date(dbUser.createdAt).toLocaleDateString()}</p>
             </div>
           </div>
         </CardContent>
@@ -86,15 +84,13 @@ export default async function SettingsPage() {
           {dbUser.organization ? (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">Name</p>
+                <p className="text-muted-foreground text-sm">Name</p>
                 <p className="font-medium">{dbUser.organization.name}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Role</p>
+                <p className="text-muted-foreground text-sm">Role</p>
                 <p className="font-medium">
-                  {dbUser.organization.createdBy === dbUser.id
-                    ? "Owner"
-                    : "Member"}
+                  {dbUser.organization.createdBy === dbUser.id ? "Owner" : "Member"}
                 </p>
               </div>
             </div>
@@ -116,18 +112,14 @@ export default async function SettingsPage() {
               {dbUser.userServices.map((us) => (
                 <div
                   key={us.id}
-                  className="flex items-center justify-between py-2 border-b last:border-0"
+                  className="flex items-center justify-between border-b py-2 last:border-0"
                 >
                   <div>
                     <p className="font-medium">{us.service.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {us.service.description}
-                    </p>
+                    <p className="text-muted-foreground text-sm">{us.service.description}</p>
                   </div>
                   {us.service.price && (
-                    <p className="text-sm font-medium">
-                      ${(us.service.price / 100).toFixed(2)}/mo
-                    </p>
+                    <p className="text-sm font-medium">${(us.service.price / 100).toFixed(2)}/mo</p>
                   )}
                 </div>
               ))}
@@ -142,21 +134,14 @@ export default async function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Connected Accounts</CardTitle>
-          <CardDescription>
-            Manage your linked authentication providers
-          </CardDescription>
+          <CardDescription>Manage your linked authentication providers</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Email Provider */}
-          <div className="flex items-center justify-between py-2 border-b">
+          <div className="flex items-center justify-between border-b py-2">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+              <div className="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -167,7 +152,7 @@ export default async function SettingsPage() {
               </div>
               <div>
                 <p className="font-medium">Email</p>
-                <p className="text-sm text-muted-foreground">{dbUser.email}</p>
+                <p className="text-muted-foreground text-sm">{dbUser.email}</p>
               </div>
             </div>
             <span className="text-sm text-green-600">Connected</span>
@@ -176,8 +161,8 @@ export default async function SettingsPage() {
           {/* Google Provider */}
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                <svg className="w-4 h-4" viewBox="0 0 24 24">
+              <div className="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
+                <svg className="h-4 w-4" viewBox="0 0 24 24">
                   <path
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                     fill="#4285F4"
@@ -198,7 +183,7 @@ export default async function SettingsPage() {
               </div>
               <div>
                 <p className="font-medium">Google</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {hasGoogleLinked ? "Connected" : "Not connected"}
                 </p>
               </div>

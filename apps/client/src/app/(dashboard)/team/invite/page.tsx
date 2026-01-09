@@ -1,29 +1,27 @@
 "use client";
 
-import { useActionState } from "react";
-import { createInvite } from "./actions";
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
+import { Button } from "@acme/ui/components/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-} from "@repo/ui/components/card";
+} from "@acme/ui/components/card";
+import { Input } from "@acme/ui/components/input";
+import { Label } from "@acme/ui/components/label";
 import Link from "next/link";
+import { useActionState } from "react";
+
+import { createInvite } from "./actions";
 
 export default function InvitePage() {
   const [state, formAction] = useActionState(createInvite, null);
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="mx-auto max-w-md">
       <div className="mb-6">
-        <Link
-          href="/team"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
+        <Link href="/team" className="text-muted-foreground hover:text-foreground text-sm">
           &larr; Back to Team
         </Link>
       </div>
@@ -31,9 +29,7 @@ export default function InvitePage() {
       <Card>
         <CardHeader>
           <CardTitle>Invite Team Member</CardTitle>
-          <CardDescription>
-            Send an invite code to add someone to your organization
-          </CardDescription>
+          <CardDescription>Send an invite code to add someone to your organization</CardDescription>
         </CardHeader>
         <CardContent>
           <form action={formAction} className="space-y-4">
@@ -52,27 +48,25 @@ export default function InvitePage() {
             </Button>
 
             {state?.success && state.inviteCode && (
-              <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-                <p className="text-sm text-green-800 dark:text-green-200 font-medium mb-2">
+              <div className="rounded-md border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+                <p className="mb-2 text-sm font-medium text-green-800 dark:text-green-200">
                   Invite created successfully!
                 </p>
                 <p className="text-sm text-green-700 dark:text-green-300">
                   Share this code with your team member:
                 </p>
-                <code className="block mt-2 p-2 bg-white dark:bg-gray-800 rounded text-center font-mono text-lg">
+                <code className="mt-2 block rounded bg-white p-2 text-center font-mono text-lg dark:bg-gray-800">
                   {state.inviteCode}
                 </code>
-                <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                <p className="mt-2 text-xs text-green-600 dark:text-green-400">
                   This code expires in 7 days
                 </p>
               </div>
             )}
 
             {state?.message && !state.success && (
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-                <p className="text-sm text-red-600 dark:text-red-400">
-                  {state.message}
-                </p>
+              <div className="rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+                <p className="text-sm text-red-600 dark:text-red-400">{state.message}</p>
               </div>
             )}
           </form>

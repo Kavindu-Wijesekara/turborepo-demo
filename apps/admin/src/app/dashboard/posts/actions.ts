@@ -1,8 +1,8 @@
 "use server";
 
+import { db, eq } from "@acme/db";
+import { posts } from "@acme/db/schema";
 import { revalidatePath } from "next/cache";
-import { db, eq } from "@repo/db";
-import { posts } from "@repo/db/schema";
 
 export async function deletePost(postId: number) {
   try {

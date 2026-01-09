@@ -1,15 +1,10 @@
 "use server";
 
+import { and, db, eq } from "@acme/db";
+import { invites, organizations, services, users, userServices } from "@acme/db/schema";
 import { redirect } from "next/navigation";
+
 import { createClient } from "@/utils/supabase/server";
-import { db, eq, and } from "@repo/db";
-import {
-  users,
-  organizations,
-  invites,
-  userServices,
-  services,
-} from "@repo/db/schema";
 
 function generateSlug(name: string): string {
   const base = name
@@ -29,10 +24,7 @@ export async function getServices() {
   return allServices;
 }
 
-export async function completeProfile(
-  prevState: ProfileState,
-  formData: FormData,
-) {
+export async function completeProfile(prevState: ProfileState, formData: FormData) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -90,10 +82,7 @@ export async function completeProfile(
     } else if (orgMode === "join" && inviteCode) {
       // Find and validate invite
       const invite = await db.query.invites.findFirst({
-        where: and(
-          eq(invites.code, inviteCode.toUpperCase()),
-          eq(invites.status, "pending"),
-        ),
+        where: and(eq(invites.code, inviteCode.toUpperCase()), eq(invites.status, "pending")),
       });
 
       if (!invite) {
@@ -101,18 +90,12 @@ export async function completeProfile(
       }
 
       if (new Date() > invite.expiresAt) {
-        await db
-          .update(invites)
-          .set({ status: "expired" })
-          .where(eq(invites.id, invite.id));
+        await db.update(invites).set({ status: "expired" }).where(eq(invites.id, invite.id));
         return { success: false, message: "Invite code has expired" };
       }
 
       // Accept invite
-      await db
-        .update(invites)
-        .set({ status: "accepted" })
-        .where(eq(invites.id, invite.id));
+      await db.update(invites).set({ status: "accepted" }).where(eq(invites.id, invite.id));
 
       organizationId = invite.organizationId;
     }
@@ -135,7 +118,7 @@ export async function completeProfile(
         selectedServices.map((serviceId) => ({
           userId: dbUser.id,
           serviceId: parseInt(serviceId),
-        })),
+        }))
       );
     }
   } catch (error) {

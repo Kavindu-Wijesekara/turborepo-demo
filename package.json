@@ -2,18 +2,39 @@
   "name": "test",
   "private": true,
   "scripts": {
+    "clean": "pnpm run clean:turbo && pnpm run clean:workspace && pnpm run clean:nodemodules",
+    "clean:turbo": "rm -rf .turbo",
+    "clean:workspace": "turbo run clean",
+    "clean:nodemodules": "rm -rf */node_modules",
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo dev --parallel",
+    "dev:admin": "turbo dev --filter=@acme/admin",
+    "dev:client": "turbo dev --filter=@acme/client",
+    "start:admin": "turbo start --filter=@acme/admin",
+    "start:client": "turbo start --filter=@acme/client",
+    "build:admin": "turbo build --filter=@acme/admin",
+    "build:client": "turbo build --filter=@acme/client",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "lint:fix": "turbo run lint -- --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,json,yml,yaml}\"",
+    "check-types": "turbo run check-types",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "changeset:publish": "changeset publish",
+    "prepare": "husky install"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.1",
+    "@types/node": "^20.14.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.11",
     "prettier": "^3.7.4",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "turbo": "^2.7.3",
     "typescript": "5.9.2"
   },
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@10.24.0",
   "engines": {
     "node": ">=18"
   }

@@ -1,24 +1,20 @@
 "use client";
 
-import { useActionState, useState, useEffect } from "react";
-import { completeProfile, getServices } from "./actions";
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
+import { Button } from "@acme/ui/components/button";
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   CardDescription,
   CardFooter,
-} from "@repo/ui/components/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@repo/ui/components/tabs";
+  CardHeader,
+  CardTitle,
+} from "@acme/ui/components/card";
+import { Input } from "@acme/ui/components/input";
+import { Label } from "@acme/ui/components/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@acme/ui/components/tabs";
+import { useActionState, useEffect, useState } from "react";
+
+import { completeProfile, getServices } from "./actions";
 
 type Service = {
   id: number;
@@ -51,9 +47,7 @@ export default function CompleteProfilePage() {
 
   const handleServiceToggle = (serviceId: number) => {
     setSelectedServices((prev) =>
-      prev.includes(serviceId)
-        ? prev.filter((id) => id !== serviceId)
-        : [...prev, serviceId],
+      prev.includes(serviceId) ? prev.filter((id) => id !== serviceId) : [...prev, serviceId]
     );
   };
 
@@ -77,7 +71,7 @@ export default function CompleteProfilePage() {
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
-                className={`w-3 h-3 rounded-full ${s <= step ? "bg-primary" : "bg-gray-200 dark:bg-gray-700"}`}
+                className={`h-3 w-3 rounded-full ${s <= step ? "bg-primary" : "bg-gray-200 dark:bg-gray-700"}`}
               />
             ))}
           </div>
@@ -103,9 +97,7 @@ export default function CompleteProfilePage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="John Doe"
                   required
                 />
@@ -116,9 +108,7 @@ export default function CompleteProfilePage() {
                   id="phone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="+1 (555) 000-0000"
                   required
                 />
@@ -129,10 +119,7 @@ export default function CompleteProfilePage() {
           {/* Step 2: Organization */}
           {step === 2 && (
             <div className="space-y-4">
-              <Tabs
-                value={orgMode}
-                onValueChange={(v) => setOrgMode(v as "create" | "join")}
-              >
+              <Tabs value={orgMode} onValueChange={(v) => setOrgMode(v as "create" | "join")}>
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="create">Create Organization</TabsTrigger>
                   <TabsTrigger value="join">Join with Invite</TabsTrigger>
@@ -144,15 +131,12 @@ export default function CompleteProfilePage() {
                       <Input
                         id="orgName"
                         value={formData.orgName}
-                        onChange={(e) =>
-                          setFormData({ ...formData, orgName: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, orgName: e.target.value })}
                         placeholder="Acme Inc."
                       />
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      You will be the owner of this organization and can invite
-                      team members later.
+                    <p className="text-muted-foreground text-sm">
+                      You will be the owner of this organization and can invite team members later.
                     </p>
                   </div>
                 </TabsContent>
@@ -173,7 +157,7 @@ export default function CompleteProfilePage() {
                         className="font-mono"
                       />
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Enter the invite code you received from your organization.
                     </p>
                   </div>
@@ -185,7 +169,7 @@ export default function CompleteProfilePage() {
           {/* Step 3: Services Selection */}
           {step === 3 && (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4 text-sm">
                 Select the services you&apos;re interested in (optional)
               </p>
               <div className="grid gap-3">
@@ -193,18 +177,16 @@ export default function CompleteProfilePage() {
                   <div
                     key={service.id}
                     onClick={() => handleServiceToggle(service.id)}
-                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                    className={`cursor-pointer rounded-lg border p-4 transition-colors ${
                       selectedServices.includes(service.id)
                         ? "border-primary bg-primary/5"
-                        : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
+                        : "border-gray-200 hover:border-gray-300 dark:border-gray-700"
                     }`}
                   >
                     <div className="flex items-start justify-between">
                       <div>
                         <h4 className="font-medium">{service.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {service.description}
-                        </p>
+                        <p className="text-muted-foreground text-sm">{service.description}</p>
                       </div>
                       <div className="text-right">
                         {service.price && (
@@ -213,15 +195,15 @@ export default function CompleteProfilePage() {
                           </span>
                         )}
                         <div
-                          className={`mt-1 w-5 h-5 rounded border ${
+                          className={`mt-1 h-5 w-5 rounded border ${
                             selectedServices.includes(service.id)
                               ? "bg-primary border-primary"
                               : "border-gray-300"
-                          } flex items-center justify-center ml-auto`}
+                          } ml-auto flex items-center justify-center`}
                         >
                           {selectedServices.includes(service.id) && (
                             <svg
-                              className="w-3 h-3 text-white"
+                              className="h-3 w-3 text-white"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                             >
@@ -238,26 +220,20 @@ export default function CompleteProfilePage() {
                   </div>
                 ))}
                 {services.length === 0 && (
-                  <p className="text-center text-muted-foreground py-4">
-                    Loading services...
-                  </p>
+                  <p className="text-muted-foreground py-4 text-center">Loading services...</p>
                 )}
               </div>
             </div>
           )}
 
           {state?.message && !state.success && (
-            <p className="text-sm text-red-600 mt-4">{state.message}</p>
+            <p className="mt-4 text-sm text-red-600">{state.message}</p>
           )}
         </form>
       </CardContent>
       <CardFooter className="flex justify-between">
         {step > 1 ? (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setStep(step - 1)}
-          >
+          <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
             Back
           </Button>
         ) : (
@@ -277,11 +253,7 @@ export default function CompleteProfilePage() {
             <input type="hidden" name="phone" value={formData.phone} />
             <input type="hidden" name="orgMode" value={orgMode} />
             <input type="hidden" name="orgName" value={formData.orgName} />
-            <input
-              type="hidden"
-              name="inviteCode"
-              value={formData.inviteCode}
-            />
+            <input type="hidden" name="inviteCode" value={formData.inviteCode} />
             {selectedServices.map((id) => (
               <input key={id} type="hidden" name="services" value={id} />
             ))}

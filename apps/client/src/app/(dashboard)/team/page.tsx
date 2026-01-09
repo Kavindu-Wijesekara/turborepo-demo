@@ -1,16 +1,17 @@
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
-import { db, eq } from "@repo/db";
-import { users, invites } from "@repo/db/schema";
-import Link from "next/link";
-import { Button } from "@repo/ui/components/button";
+import { db, eq } from "@acme/db";
+import { invites, users } from "@acme/db/schema";
+import { Button } from "@acme/ui/components/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-} from "@repo/ui/components/card";
+} from "@acme/ui/components/card";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+
+import { createClient } from "@/utils/supabase/server";
 
 export default async function TeamPage() {
   const supabase = await createClient();
@@ -36,11 +37,9 @@ export default async function TeamPage() {
 
   if (!dbUser?.organization) {
     return (
-      <div className="text-center py-10">
-        <h2 className="text-xl font-semibold mb-2">No Organization</h2>
-        <p className="text-muted-foreground">
-          You are not part of any organization yet.
-        </p>
+      <div className="py-10 text-center">
+        <h2 className="mb-2 text-xl font-semibold">No Organization</h2>
+        <p className="text-muted-foreground">You are not part of any organization yet.</p>
       </div>
     );
   }
@@ -69,11 +68,9 @@ export default async function TeamPage() {
           <Card key={member.id}>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">
-                  {member.name || "Unnamed User"}
-                </CardTitle>
+                <CardTitle className="text-base">{member.name || "Unnamed User"}</CardTitle>
                 {member.id === dbUser.organization!.createdBy && (
-                  <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                  <span className="bg-primary text-primary-foreground rounded px-2 py-1 text-xs">
                     Owner
                   </span>
                 )}
@@ -81,7 +78,7 @@ export default async function TeamPage() {
               <CardDescription>{member.email}</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Joined {new Date(member.createdAt).toLocaleDateString()}
               </p>
             </CardContent>
@@ -92,7 +89,7 @@ export default async function TeamPage() {
       {/* Pending Invites */}
       {isOwner && pendingInvites.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-4">Pending Invites</h3>
+          <h3 className="mb-4 text-lg font-semibold">Pending Invites</h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {pendingInvites.map((invite) => (
               <Card key={invite.id}>
@@ -103,7 +100,7 @@ export default async function TeamPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     Expires {new Date(invite.expiresAt).toLocaleDateString()}
                   </p>
                 </CardContent>

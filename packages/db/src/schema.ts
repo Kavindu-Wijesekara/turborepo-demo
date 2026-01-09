@@ -1,13 +1,5 @@
-import {
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  integer,
-  boolean,
-  pgEnum,
-} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { boolean, integer, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 // Enums
 export const inviteStatusEnum = pgEnum("invite_status", [
@@ -34,10 +26,9 @@ export const users = pgTable("users", {
   name: text("name"),
   email: text("email").notNull(),
   phone: text("phone"),
-  organizationId: integer("organization_id").references(
-    () => organizations.id,
-    { onDelete: "set null" },
-  ),
+  organizationId: integer("organization_id").references(() => organizations.id, {
+    onDelete: "set null",
+  }),
   profileCompleted: boolean("profile_completed").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -94,18 +85,15 @@ export const userServices = pgTable("user_services", {
 });
 
 // Relations
-export const organizationsRelations = relations(
-  organizations,
-  ({ many, one }) => ({
-    users: many(users, { relationName: "organizationMembers" }),
-    invites: many(invites),
-    creator: one(users, {
-      fields: [organizations.createdBy],
-      references: [users.id],
-      relationName: "organizationCreator",
-    }),
+export const organizationsRelations = relations(organizations, ({ many, one }) => ({
+  users: many(users, { relationName: "organizationMembers" }),
+  invites: many(invites),
+  creator: one(users, {
+    fields: [organizations.createdBy],
+    references: [users.id],
+    relationName: "organizationCreator",
   }),
-);
+}));
 
 export const usersRelations = relations(users, ({ one, many }) => ({
   organization: one(organizations, {

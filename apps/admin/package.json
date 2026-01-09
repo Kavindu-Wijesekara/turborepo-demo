@@ -1,17 +1,37 @@
 {
-  "name": "admin",
+  "name": "@acme/admin",
   "version": "0.1.0",
+  "description": "Admin dashboard for the Monorepo application",
   "private": true,
+  "author": "Monorepo Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/monorepo",
+    "directory": "apps/admin"
+  },
+  "homepage": "https://github.com/yourusername/monorepo",
+  "keywords": [
+    "admin",
+    "dashboard",
+    "next.js",
+    "typescript",
+    "tailwindcss"
+  ],
+  "bugs": {
+    "url": "https://github.com/yourusername/monorepo/issues"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "clean": "rm -rf .next"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.5",
-    "@repo/db": "workspace:*",
-    "@repo/ui": "workspace:*",
+    "@acme/db": "workspace:*",
+    "@acme/ui": "workspace:*",
     "next": "16.1.1",
     "next-themes": "^0.4.6",
     "react": "19.2.3",
@@ -25,6 +45,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "@acme/eslint-config": "workspace:*",
     "tailwindcss": "^4.1.0",
     "typescript": "^5"
   }

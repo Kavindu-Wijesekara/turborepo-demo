@@ -1,0 +1,20 @@
+{
+  "name": "@acme/env",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "node -e \"require('./src/index.ts')\"",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@acme/typescript-config": "workspace:*",
+    "@types/node": "^22.10.7",
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,8 +1,9 @@
 "use server";
 
+import { db, eq } from "@acme/db";
+import { invites, users } from "@acme/db/schema";
+
 import { createClient } from "@/utils/supabase/server";
-import { db, eq } from "@repo/db";
-import { users, invites } from "@repo/db/schema";
 
 function generateInviteCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -21,7 +22,7 @@ type InviteState = {
 
 export async function createInvite(
   prevState: InviteState,
-  formData: FormData,
+  formData: FormData
 ): Promise<InviteState> {
   const supabase = await createClient();
   const {

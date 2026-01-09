@@ -7,6 +7,8 @@ import pluginReact from "eslint-plugin-react";
 import globals from "globals";
 import pluginNext from "@next/eslint-plugin-next";
 import { config as baseConfig } from "./base.js";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
+import unicorn from "eslint-plugin-unicorn";
 
 /**
  * A custom ESLint configuration for libraries that use Next.js.
@@ -37,10 +39,23 @@ export const nextJsConfig = [
   {
     plugins: {
       "@next/next": pluginNext,
+      "simple-import-sort": simpleImportSort,
+      unicorn,
     },
     rules: {
       ...pluginNext.configs.recommended.rules,
       ...pluginNext.configs["core-web-vitals"].rules,
+      // Auto-organize imports and exports
+      "simple-import-sort/imports": "warn",
+      "simple-import-sort/exports": "warn",
+      // Enforce kebab-case filenames, ignore Next.js dynamic routes and group folders
+      "unicorn/filename-case": [
+        "warn",
+        {
+          case: "kebabCase",
+          ignore: ["^\\[.*\\]$", "^\\(.*\\)$", "^\\[\\[\\.\\.\\.\\w+\\]\\]$"],
+        },
+      ],
     },
   },
   {

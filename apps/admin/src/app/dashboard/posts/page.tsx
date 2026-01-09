@@ -1,11 +1,8 @@
-import { db } from "@repo/db";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/card";
+import { db } from "@acme/db";
+import { Card, CardContent, CardHeader, CardTitle } from "@acme/ui/components/card";
+
 import { DeleteButton } from "@/components/delete-button";
+
 import { deletePost } from "./actions";
 
 export default async function PostsPage() {
@@ -32,32 +29,29 @@ export default async function PostsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">ID</th>
-                  <th className="text-left py-3 px-4 font-medium">Title</th>
-                  <th className="text-left py-3 px-4 font-medium">Content</th>
-                  <th className="text-left py-3 px-4 font-medium">Author</th>
-                  <th className="text-left py-3 px-4 font-medium">Created</th>
-                  <th className="text-left py-3 px-4 font-medium">Actions</th>
+                  <th className="px-4 py-3 text-left font-medium">ID</th>
+                  <th className="px-4 py-3 text-left font-medium">Title</th>
+                  <th className="px-4 py-3 text-left font-medium">Content</th>
+                  <th className="px-4 py-3 text-left font-medium">Author</th>
+                  <th className="px-4 py-3 text-left font-medium">Created</th>
+                  <th className="px-4 py-3 text-left font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {allPosts.map((post) => (
-                  <tr
-                    key={post.id}
-                    className="border-b hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
-                    <td className="py-3 px-4">{post.id}</td>
-                    <td className="py-3 px-4 font-medium">{post.title}</td>
-                    <td className="py-3 px-4 max-w-xs truncate text-muted-foreground">
+                  <tr key={post.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-4 py-3">{post.id}</td>
+                    <td className="px-4 py-3 font-medium">{post.title}</td>
+                    <td className="text-muted-foreground max-w-xs truncate px-4 py-3">
                       {post.content}
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="px-4 py-3">
                       {post.user?.name || post.user?.email || "Unknown"}
                     </td>
-                    <td className="py-3 px-4 text-muted-foreground">
+                    <td className="text-muted-foreground px-4 py-3">
                       {new Date(post.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="px-4 py-3">
                       <DeleteButton
                         itemName="Post"
                         onDelete={async () => {
@@ -70,10 +64,7 @@ export default async function PostsPage() {
                 ))}
                 {allPosts.length === 0 && (
                   <tr>
-                    <td
-                      colSpan={6}
-                      className="py-8 text-center text-muted-foreground"
-                    >
+                    <td colSpan={6} className="text-muted-foreground py-8 text-center">
                       No posts found
                     </td>
                   </tr>

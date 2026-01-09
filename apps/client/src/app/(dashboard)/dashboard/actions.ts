@@ -1,16 +1,14 @@
 "use server";
 
+import { db, eq } from "@acme/db";
+import { posts, users } from "@acme/db/schema";
 import { revalidatePath } from "next/cache";
+
 import { createClient } from "@/utils/supabase/server";
-import { db, eq } from "@repo/db";
-import { users, posts } from "@repo/db/schema";
 
 type PostState = { success: boolean; message: string } | null;
 
-export async function createPost(
-  prevState: PostState,
-  formData: FormData,
-): Promise<PostState> {
+export async function createPost(prevState: PostState, formData: FormData): Promise<PostState> {
   const supabase = await createClient();
   const {
     data: { user },

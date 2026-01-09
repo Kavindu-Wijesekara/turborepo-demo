@@ -1,8 +1,9 @@
 "use server";
 
+import { db, eq, users } from "@acme/db";
 import { redirect } from "next/navigation";
+
 import { createClient } from "@/utils/supabase/server";
-import { db, eq, users } from "@repo/db";
 
 type AuthState = { success: boolean; message: string } | null;
 type AuthType = "login" | "signup";
@@ -23,7 +24,7 @@ async function checkUserExistsByEmail(email: string): Promise<boolean> {
 // Sign Up with Email (Magic Link) - For new users only
 export async function signUpWithEmail(
   prevState: AuthState,
-  formData: FormData,
+  formData: FormData
 ): Promise<AuthState> {
   const email = formData.get("email") as string;
 
@@ -32,8 +33,7 @@ export async function signUpWithEmail(
   if (userExists) {
     return {
       success: false,
-      message:
-        "An account with this email already exists. Please sign in instead.",
+      message: "An account with this email already exists. Please sign in instead.",
     };
   }
 
@@ -55,7 +55,7 @@ export async function signUpWithEmail(
 // Sign In with Email (Magic Link) - For existing users only
 export async function signInWithEmail(
   prevState: AuthState,
-  formData: FormData,
+  formData: FormData
 ): Promise<AuthState> {
   const email = formData.get("email") as string;
 
