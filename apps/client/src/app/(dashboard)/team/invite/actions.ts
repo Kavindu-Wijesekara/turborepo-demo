@@ -1,9 +1,8 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { db } from "@repo/db";
+import { db, eq } from "@repo/db";
 import { users, invites } from "@repo/db/schema";
-import { eq } from "drizzle-orm";
 
 function generateInviteCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

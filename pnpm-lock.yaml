@@ -84,9 +84,6 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.48.1
         version: 2.89.0
-      drizzle-orm:
-        specifier: ^0.39.1
-        version: 0.39.3(postgres@3.4.8)
       next:
         specifier: 16.1.1
         version: 16.1.1(@babel/core@7.28.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)

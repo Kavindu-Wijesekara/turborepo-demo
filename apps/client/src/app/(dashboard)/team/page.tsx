@@ -1,8 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { db } from "@repo/db";
+import { db, eq } from "@repo/db";
 import { users, invites } from "@repo/db/schema";
-import { eq, and } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
 import {

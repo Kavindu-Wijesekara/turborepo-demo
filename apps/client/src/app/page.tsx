@@ -15,7 +15,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="text-center space-y-6 max-w-md px-4">
         <h1 className="text-4xl font-bold tracking-tight">CloudServ</h1>
         <p className="text-lg text-muted-foreground">

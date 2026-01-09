@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import { db } from "@repo/db";
+import { db, eq, and } from "@repo/db";
 import {
   users,
   organizations,
@@ -10,7 +10,6 @@ import {
   userServices,
   services,
 } from "@repo/db/schema";
-import { eq, and } from "drizzle-orm";
 
 function generateSlug(name: string): string {
   const base = name

@@ -2,9 +2,8 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
-import { db } from "@repo/db";
+import { db, eq } from "@repo/db";
 import { users } from "@repo/db/schema";
-import { eq } from "drizzle-orm";
 
 export default async function DashboardLayout({
   children,

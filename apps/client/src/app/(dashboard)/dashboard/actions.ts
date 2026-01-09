@@ -2,9 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
-import { db } from "@repo/db";
+import { db, eq } from "@repo/db";
 import { users, posts } from "@repo/db/schema";
-import { eq } from "drizzle-orm";
 
 type PostState = { success: boolean; message: string } | null;
 
