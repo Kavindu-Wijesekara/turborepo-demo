@@ -1,6 +1,9 @@
 import { count, db, organizations, posts, services, users } from "@acme/db";
 import { Card, CardDescription, CardHeader, CardTitle } from "@acme/ui/components/card";
 
+// Force dynamic rendering - this page requires database access
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   // Fetch counts
   const [usersCount] = await db.select({ count: count() }).from(users);

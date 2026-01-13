@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "description": "Client application for the Monorepo with Supabase authentication",
   "private": true,
-  "author": "Monorepo Contributors",
+  "author": "MoGo",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/monorepo",
+    "url": "https://github.com/Kavindu-Wijesekara/turborepo-demo",
     "directory": "apps/client"
   },
-  "homepage": "https://github.com/yourusername/monorepo",
+  "homepage": "https://github.com/Kavindu-Wijesekara/turborepo-demo",
   "keywords": [
     "client",
     "application",
@@ -20,7 +20,7 @@
     "tailwindcss"
   ],
   "bugs": {
-    "url": "https://github.com/yourusername/monorepo/issues"
+    "url": "https://github.com/Kavindu-Wijesekara/turborepo-demo/issues"
   },
   "scripts": {
     "dev": "next dev",
@@ -32,6 +32,7 @@
   "dependencies": {
     "@acme/db": "workspace:*",
     "@acme/ui": "workspace:*",
+    "@marsidev/react-turnstile": "^1.4.1",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.48.1",
     "next": "16.1.1",
@@ -39,6 +40,7 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@acme/eslint-config": "workspace:*",
     "@tailwindcss/postcss": "^4.1.0",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -46,7 +48,6 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
-    "@acme/eslint-config": "workspace:*",
     "tailwindcss": "^4.1.0",
     "typescript": "^5"
   }

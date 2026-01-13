@@ -1,22 +1,60 @@
-name: Deploy to Vercel
+name: Deploy to Production
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: [main] # Only deploy when pushing to main
+  workflow_dispatch: # Allow manual deployment
 
+env:
+  HUSKY: 0
+
+# Only allow one production deployment at a time
 concurrency:
-  group: deployment-${{ github.ref }}
-  cancel-in-progress: true
+  group: production-deployment
+  cancel-in-progress: false # Don't cancel production deployments
 
 jobs:
+  # Run database migrations before any deployment
+  migrate-database:
+    name: Run Database Migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://your-domain.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.24.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run database migrations
+        run: pnpm --filter @acme/db migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_DIRECT_URL: ${{ secrets.DATABASE_DIRECT_URL }}
+
   deploy-admin:
-    name: Deploy Admin to Vercel
+    name: Deploy Admin to Production
+    needs: migrate-database
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
       name: admin-production
-      url: ${{ steps.deploy.outputs.deployment-url }}
+      url: ${{ steps.deploy.outputs.url }}
 
     steps:
       - name: Checkout code
@@ -36,22 +74,40 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Deploy admin to Vercel
+      - name: Deploy to Vercel (Production)
         id: deploy
         run: |
-          npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} apps/admin
-          echo "deployment-url=$(npx vercel inspect --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} apps/admin | grep 'url:' | awk '{print $2}')" >> $GITHUB_OUTPUT
+          DEPLOYMENT_URL=$(npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} apps/admin)
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "### ✅ Admin Deployed Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 URL: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
 
+      - name: Create deployment comment
+        uses: actions/github-script@v7
+        if: success()
+        with:
+          script: |
+            const deployment_url = '${{ steps.deploy.outputs.url }}';
+            const commit_sha = context.sha.substring(0, 7);
+
+            await github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `## 🚀 Admin App Deployed to Production\n\n✅ **Status:** Deployed\n🔗 **URL:** ${deployment_url}\n📦 **Commit:** \`${commit_sha}\`\n⏰ **Time:** ${new Date().toUTCString()}`
+            });
+
   deploy-client:
-    name: Deploy Client to Vercel
+    name: Deploy Client to Production
+    needs: migrate-database
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
       name: client-production
-      url: ${{ steps.deploy.outputs.deployment-url }}
+      url: ${{ steps.deploy.outputs.url }}
 
     steps:
       - name: Checkout code
@@ -71,11 +127,42 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Deploy client to Vercel
+      - name: Deploy to Vercel (Production)
         id: deploy
         run: |
-          npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} apps/client
-          echo "deployment-url=$(npx vercel inspect --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} apps/client | grep 'url:' | awk '{print $2}')" >> $GITHUB_OUTPUT
+          DEPLOYMENT_URL=$(npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} apps/client)
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "### ✅ Client Deployed Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 URL: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_CLIENT_PROJECT_ID }}
+
+      - name: Create deployment comment
+        uses: actions/github-script@v7
+        if: success()
+        with:
+          script: |
+            const deployment_url = '${{ steps.deploy.outputs.url }}';
+            const commit_sha = context.sha.substring(0, 7);
+
+            await github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `## 🚀 Client App Deployed to Production\n\n✅ **Status:** Deployed\n🔗 **URL:** ${deployment_url}\n📦 **Commit:** \`${commit_sha}\`\n⏰ **Time:** ${new Date().toUTCString()}`
+            });
+
+  notify-deployment-success:
+    name: Notify Deployment Complete
+    needs: [deploy-admin, deploy-client]
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: Summary
+        run: |
+          echo "## 🎉 Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "All applications have been successfully deployed to production." >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Admin App" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Client App" >> $GITHUB_STEP_SUMMARY

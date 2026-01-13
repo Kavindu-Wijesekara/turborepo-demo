@@ -22,7 +22,7 @@
     "changeset": "changeset",
     "changeset:version": "changeset version",
     "changeset:publish": "changeset publish",
-    "prepare": "husky install"
+    "prepare": "node .husky/install.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",

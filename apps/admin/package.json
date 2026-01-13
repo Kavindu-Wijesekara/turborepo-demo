@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "description": "Admin dashboard for the Monorepo application",
   "private": true,
-  "author": "Monorepo Contributors",
+  "author": "MoGo",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/monorepo",
+    "url": "https://github.com/Kavindu-Wijesekara/turborepo-demo",
     "directory": "apps/admin"
   },
-  "homepage": "https://github.com/yourusername/monorepo",
+  "homepage": "https://github.com/Kavindu-Wijesekara/turborepo-demo",
   "keywords": [
     "admin",
     "dashboard",
@@ -19,7 +19,7 @@
     "tailwindcss"
   ],
   "bugs": {
-    "url": "https://github.com/yourusername/monorepo/issues"
+    "url": "https://github.com/Kavindu-Wijesekara/turborepo-demo/issues"
   },
   "scripts": {
     "dev": "next dev",

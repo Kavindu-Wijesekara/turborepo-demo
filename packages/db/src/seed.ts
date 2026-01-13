@@ -1,13 +1,13 @@
-import * as dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 import { services } from "./schema";
 
-dotenv.config({ path: "../../.env.local" });
-dotenv.config({ path: "../../.env" });
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not defined. Please set it in your environment.");
+}
 
-const connectionString = process.env.DATABASE_URL!;
+const connectionString = process.env.DATABASE_URL;
 
 async function seed() {
   const client = postgres(connectionString, { prepare: false });
