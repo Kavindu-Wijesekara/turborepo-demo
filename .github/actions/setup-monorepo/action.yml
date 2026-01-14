@@ -9,6 +9,9 @@ runs:
       with:
         version: 10.24.0
 
+    - shell: bash
+      run: echo "$PNPM_HOME" >> $GITHUB_PATH
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -23,4 +26,4 @@ runs:
 
     - name: Install Vercel CLI
       shell: bash
-      run: pnpm add -g vercel@latest
+      run: npm i -g vercel
