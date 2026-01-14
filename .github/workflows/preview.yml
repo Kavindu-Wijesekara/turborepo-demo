@@ -45,7 +45,7 @@ jobs:
               - 'packages/eslint-config/**'
               - 'packages/typescript-config/**'
               - 'turbo.json'
-              - 'pnpm-workspace.yaml'
+              - 'bunfig.toml'
             client:
               - 'apps/client/**'
               - 'packages/ui/**'
@@ -54,7 +54,7 @@ jobs:
               - 'packages/eslint-config/**'
               - 'packages/typescript-config/**'
               - 'turbo.json'
-              - 'pnpm-workspace.yaml'
+              - 'bunfig.toml'
             packages:
               - 'packages/**'
 
@@ -98,17 +98,17 @@ jobs:
       - name: Pull Vercel Environment Information
         run: |
           cd apps/admin
-          pnpm exec vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          bunx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
         run: |
           cd apps/admin
-          pnpm exec vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          bunx vercel build --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy to Vercel
         id: deploy
         run: |
           cd apps/admin
-          DEPLOYMENT_URL=$(pnpm exec vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(bunx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
 
       - name: Comment PR with preview URL
@@ -183,18 +183,18 @@ jobs:
       - name: Pull Vercel Environment Information
         run: |
           cd apps/client
-          pnpm exec vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          bunx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
         run: |
           cd apps/client
-          vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          bunx vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy to Vercel
         id: deploy
         run: |
           cd apps/client
-          DEPLOYMENT_URL=$(pnpm exec vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(bunx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
 
       - name: Comment PR with preview URL

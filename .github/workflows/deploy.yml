@@ -46,7 +46,7 @@ jobs:
               - 'packages/eslint-config/**'
               - 'packages/typescript-config/**'
               - 'turbo.json'
-              - 'pnpm-workspace.yaml'
+              - 'bunfig.toml'
             client:
               - 'apps/client/**'
               - 'packages/ui/**'
@@ -55,7 +55,7 @@ jobs:
               - 'packages/eslint-config/**'
               - 'packages/typescript-config/**'
               - 'turbo.json'
-              - 'pnpm-workspace.yaml'
+              - 'bunfig.toml'
             packages:
               - 'packages/**'
             db:
@@ -80,7 +80,7 @@ jobs:
         uses: ./.github/actions/setup-monorepo
 
       - name: Run database migrations
-        run: pnpm --filter @acme/db migrate
+        run: bun --filter @acme/db migrate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_DIRECT_URL: ${{ secrets.DATABASE_DIRECT_URL }}
@@ -88,7 +88,7 @@ jobs:
       - name: Verify migrations
         run: |
           echo "Verifying database connection..."
-          pnpm --filter @acme/db db:check || echo "⚠️ Migration verification not configured"
+          bun --filter @acme/db db:check || echo "⚠️ Migration verification not configured"
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_DIRECT_URL: ${{ secrets.DATABASE_DIRECT_URL }}
@@ -129,18 +129,18 @@ jobs:
       - name: Pull Vercel Environment Information
         run: |
           cd apps/admin
-          pnpm exec vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          bunx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
         run: |
           cd apps/admin
-          pnpm exec vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          bunx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy to Vercel
         id: deploy
         run: |
           cd apps/admin
-          DEPLOYMENT_URL=$(pnpm exec vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(bunx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "### ✅ Admin Deployed Successfully" >> $GITHUB_STEP_SUMMARY
           echo "🔗 URL: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY
@@ -190,18 +190,18 @@ jobs:
       - name: Pull Vercel Environment Information
         run: |
           cd apps/client
-          pnpm exec vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          bunx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
         run: |
           cd apps/client
-          pnpm exec vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          bunx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy to Vercel
         id: deploy
         run: |
           cd apps/client
-          DEPLOYMENT_URL=$(pnpm exec vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(bunx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "### ✅ Client Deployed Successfully" >> $GITHUB_STEP_SUMMARY
           echo "🔗 URL: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY

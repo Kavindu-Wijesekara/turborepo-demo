@@ -33,10 +33,10 @@ jobs:
         uses: ./.github/actions/setup-monorepo
 
       - name: Run linter
-        run: pnpm lint
+        run: bun lint
 
       - name: Check formatting
-        run: pnpm format:check
+        run: bun format:check
 
       - name: Type checking
-        run: pnpm check-types
+        run: bun check-types
