@@ -8,6 +8,7 @@ on:
 
 env:
   HUSKY: 0
+  TURBO_TELEMETRY_DISABLED: 1
 
 # Cancel in-progress runs for same PR/branch
 concurrency:
@@ -15,29 +16,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Single validation job - lint, format, type-check, build
+  # Single validation job - lint, format, type-check
   validate:
-    name: Validate Code Quality & Build
+    name: Validate Code Quality
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.24.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup monorepo
+        uses: ./.github/actions/setup-monorepo
 
       - name: Run linter
         run: pnpm lint
@@ -48,25 +38,17 @@ jobs:
       - name: Type checking
         run: pnpm check-types
 
+      # Build artifacts for reuse in preview/deploy workflows
       - name: Build all apps
         run: pnpm build
-        env:
-          # Dummy env vars for build validation in CI
-          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
-          DATABASE_DIRECT_URL: postgresql://dummy:dummy@localhost:5432/dummy
-          CLERK_SECRET_KEY: dummy_clerk_secret_key_for_ci
-          NEXT_PUBLIC_APP_URL: https://example.com
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_dummy
-          NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_dummy
-          NEXT_PUBLIC_TURNSTILE_SITE_KEY: 0x4AAAAAAA_dummy_turnstile_key
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
-        if: success()
         with:
-          name: build-artifacts
+          name: build-artifacts-${{ github.sha }}
           path: |
-            apps/*/. next
-            !apps/*/.next/cache
+            apps/admin/.next/**
+            apps/client/.next/**
+            node_modules/.cache/turbo/**
           retention-days: 1
+          compression-level: 6

@@ -2,44 +2,70 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [main] # Only deploy when pushing to main
+    branches: [main]
   workflow_dispatch: # Allow manual deployment
 
 env:
   HUSKY: 0
+  TURBO_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  TURBO_TEAM: ${{ secrets.VERCEL_ORG_ID }}
+  TURBO_TELEMETRY_DISABLED: 1
 
-# Only allow one production deployment at a time
 concurrency:
   group: production-deployment
-  cancel-in-progress: false # Don't cancel production deployments
+  cancel-in-progress: false
 
 jobs:
-  # Run database migrations before any deployment
+  # Detect which paths changed
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      admin: ${{ steps.filter.outputs.admin }}
+      client: ${{ steps.filter.outputs.client }}
+      packages: ${{ steps.filter.outputs.packages }}
+      db: ${{ steps.filter.outputs.db }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Need history for comparison
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            admin:
+              - 'apps/admin/**'
+              - 'packages/ui/**'
+              - 'packages/db/**'
+              - 'packages/types/**'
+              - 'packages/utils/**'
+            client:
+              - 'apps/client/**'
+              - 'packages/ui/**'
+              - 'packages/types/**'
+              - 'packages/utils/**'
+            packages:
+              - 'packages/**'
+            db:
+              - 'packages/db/**'
+
+  # Run migrations only if database package changed
   migrate-database:
     name: Run Database Migrations
+    needs: changes
+    if: needs.changes.outputs.db == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment:
-      name: production
-      url: https://your-domain.com
+      name: production-db
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.24.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup monorepo
+        uses: ./.github/actions/setup-monorepo
 
       - name: Run database migrations
         run: pnpm --filter @acme/db migrate
@@ -47,43 +73,60 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_DIRECT_URL: ${{ secrets.DATABASE_DIRECT_URL }}
 
+      - name: Migration Summary
+        run: |
+          echo "## 🗄️ Database Migrations" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Migrations completed successfully" >> $GITHUB_STEP_SUMMARY
+
+  # Deploy Admin (only if admin or packages changed)
   deploy-admin:
     name: Deploy Admin to Production
-    needs: migrate-database
+    needs: [changes, migrate-database]
+    # Run if admin changed (now includes all relevant package dependencies), and either:
+    # - migrations succeeded, OR
+    # - migrations were skipped (db didn't change)
+    if: |
+      always() &&
+      needs.changes.outputs.admin == 'true' &&
+      (needs.migrate-database.result == 'success' || needs.migrate-database.result == 'skipped')
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment:
-      name: admin-production
+      name: production-admin
       url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          version: 10.24.0
+          name: build-artifacts-${{ github.sha }}
+        continue-on-error: true
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: "pnpm"
+      # Fallback: Build if artifacts don't exist (e.g., manual workflow_dispatch)
+      - name: Setup monorepo (fallback)
+        if: steps.download.outcome == 'failure'
+        uses: ./.github/actions/setup-monorepo
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Build Project Artifacts (fallback)
+        if: steps.download.outcome == 'failure'
+        run: pnpm build
 
-      - name: Deploy to Vercel (Production)
+      - name: Pull Vercel Environment Information
+        run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/admin
+
+      - name: Deploy to Vercel
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} apps/admin)
+          DEPLOYMENT_URL=$(npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/admin)
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "### ✅ Admin Deployed Successfully" >> $GITHUB_STEP_SUMMARY
           echo "🔗 URL: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
 
       - name: Create deployment comment
         uses: actions/github-script@v7
@@ -100,43 +143,55 @@ jobs:
               body: `## 🚀 Admin App Deployed to Production\n\n✅ **Status:** Deployed\n🔗 **URL:** ${deployment_url}\n📦 **Commit:** \`${commit_sha}\`\n⏰ **Time:** ${new Date().toUTCString()}`
             });
 
+  # Deploy Client (only if client or packages changed)
   deploy-client:
     name: Deploy Client to Production
-    needs: migrate-database
+    needs: [changes, migrate-database]
+    # Run if client changed (now includes all relevant package dependencies), and either:
+    # - migrations succeeded, OR
+    # - migrations were skipped (db didn't change)
+    if: |
+      always() &&
+      needs.changes.outputs.client == 'true' &&
+      (needs.migrate-database.result == 'success' || needs.migrate-database.result == 'skipped')
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment:
-      name: client-production
+      name: production-client
       url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_CLIENT_PROJECT_ID }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          version: 10.24.0
+          name: build-artifacts-${{ github.sha }}
+        continue-on-error: true
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: "pnpm"
+      # Fallback: Build if artifacts don't exist (e.g., manual workflow_dispatch)
+      - name: Setup monorepo (fallback)
+        if: steps.download.outcome == 'failure'
+        uses: ./.github/actions/setup-monorepo
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Build Project Artifacts (fallback)
+        if: steps.download.outcome == 'failure'
+        run: pnpm build
 
-      - name: Deploy to Vercel (Production)
+      - name: Pull Vercel Environment Information
+        run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/client
+
+      - name: Deploy to Vercel
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} apps/client)
+          DEPLOYMENT_URL=$(npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/client)
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "### ✅ Client Deployed Successfully" >> $GITHUB_STEP_SUMMARY
           echo "🔗 URL: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_CLIENT_PROJECT_ID }}
 
       - name: Create deployment comment
         uses: actions/github-script@v7
@@ -153,16 +208,29 @@ jobs:
               body: `## 🚀 Client App Deployed to Production\n\n✅ **Status:** Deployed\n🔗 **URL:** ${deployment_url}\n📦 **Commit:** \`${commit_sha}\`\n⏰ **Time:** ${new Date().toUTCString()}`
             });
 
-  notify-deployment-success:
-    name: Notify Deployment Complete
-    needs: [deploy-admin, deploy-client]
+  # Summary job
+  deployment-summary:
+    name: Deployment Summary
+    needs: [changes, migrate-database, deploy-admin, deploy-client]
+    if: always()
     runs-on: ubuntu-latest
-    if: success()
 
     steps:
-      - name: Summary
+      - name: Generate Summary
         run: |
-          echo "## 🎉 Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
-          echo "All applications have been successfully deployed to production." >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Admin App" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Client App" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎉 Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Changes detected
+          echo "### 📝 Changes Detected" >> $GITHUB_STEP_SUMMARY
+          echo "- Admin: ${{ needs.changes.outputs.admin }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Client: ${{ needs.changes.outputs.client }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Packages: ${{ needs.changes.outputs.packages }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Database: ${{ needs.changes.outputs.db }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Job results
+          echo "### 📊 Job Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Migrations: ${{ needs.migrate-database.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Admin Deploy: ${{ needs.deploy-admin.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Client Deploy: ${{ needs.deploy-client.result }}" >> $GITHUB_STEP_SUMMARY

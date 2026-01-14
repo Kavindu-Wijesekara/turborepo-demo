@@ -2,68 +2,94 @@ name: Preview Deployment
 
 on:
   pull_request:
-    branches: [main] # Only create previews for PRs to main (production)
+    branches: [main]
     types: [opened, synchronize, reopened]
 
 env:
   HUSKY: 0
+  TURBO_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  TURBO_TEAM: ${{ secrets.VERCEL_ORG_ID }}
+  TURBO_TELEMETRY_DISABLED: 1
 
-# Cancel old preview deployments when new commits are pushed
 concurrency:
   group: preview-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
-  # Wait for CI to pass before deploying preview
-  check-ci:
-    name: Wait for CI to Pass
+  # Detect which paths changed
+  changes:
+    name: Detect Changes
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    outputs:
+      admin: ${{ steps.filter.outputs.admin }}
+      client: ${{ steps.filter.outputs.client }}
+      packages: ${{ steps.filter.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            admin:
+              - 'apps/admin/**'
+              - 'packages/ui/**'
+              - 'packages/db/**'
+              - 'packages/types/**'
+              - 'packages/utils/**'
+            client:
+              - 'apps/client/**'
+              - 'packages/ui/**'
+              - 'packages/types/**'
+              - 'packages/utils/**'
+            packages:
+              - 'packages/**'
 
+  # Wait for CI to pass
+  check-ci:
+    name: Wait for CI
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.admin == 'true' || needs.changes.outputs.client == 'true' || needs.changes.outputs.packages == 'true'
     steps:
       - name: Wait for CI workflow
         uses: lewagon/wait-on-check-action@v1.3.4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: "Validate Code Quality & Build"
+          check-name: "Validate Code Quality"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
 
+  # Deploy Admin Preview (only if admin or related packages changed)
   preview-admin:
     name: Deploy Admin Preview
-    needs: check-ci
+    needs: [changes, check-ci]
+    if: needs.changes.outputs.admin == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment:
       name: preview-admin
       url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          version: 10.24.0
+          name: build-artifacts-${{ github.sha }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: "pnpm"
+      - name: Pull Vercel Environment Information
+        run: npx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/admin
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Deploy Preview to Vercel
+      - name: Deploy to Vercel
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} apps/admin)
+          DEPLOYMENT_URL=$(npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/admin)
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
 
       - name: Comment PR with preview URL
         uses: actions/github-script@v7
@@ -71,8 +97,9 @@ jobs:
           script: |
             const deployment_url = '${{ steps.deploy.outputs.url }}';
             const pr_number = context.issue.number;
+            const commit_sha = context.sha.substring(0, 7);
+            const timestamp = new Date().toUTCString();
 
-            // Find existing comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -84,14 +111,17 @@ jobs:
               comment.body.includes('Admin App Preview')
             );
 
-            const body = `## 🔍 Admin App Preview Deployment
-
-            ✅ **Status:** Ready
-            🔗 **Preview URL:** ${deployment_url}
-            📦 **Commit:** \`${context.sha.substring(0, 7)}\`
-            ⏰ **Updated:** ${new Date().toUTCString()}
-
-            > This preview will be automatically updated when you push new commits to this PR.`;
+            const body = [
+              '## Admin App Preview Deployment',
+              '',
+              '| Status | Ready |',
+              '|--------|-------|',
+              `| Preview URL | ${deployment_url} |`,
+              `| Commit | \`${commit_sha}\` |`,
+              `| Updated | ${timestamp} |`,
+              '',
+              '> This preview will be automatically updated when you push new commits.',
+            ].join('\n');
 
             if (botComment) {
               await github.rest.issues.updateComment({
@@ -109,41 +139,37 @@ jobs:
               });
             }
 
+  # Deploy Client Preview (only if client or related packages changed)
   preview-client:
     name: Deploy Client Preview
-    needs: check-ci
+    needs: [changes, check-ci]
+    if: needs.changes.outputs.client == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment:
       name: preview-client
       url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_CLIENT_PROJECT_ID }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          version: 10.24.0
+          name: build-artifacts-${{ github.sha }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: "pnpm"
+      - name: Pull Vercel Environment Information
+        run: npx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/client
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Deploy Preview to Vercel
+      - name: Deploy to Vercel
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(npx vercel --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} apps/client)
+          DEPLOYMENT_URL=$(npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/client)
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_CLIENT_PROJECT_ID }}
 
       - name: Comment PR with preview URL
         uses: actions/github-script@v7
@@ -151,8 +177,9 @@ jobs:
           script: |
             const deployment_url = '${{ steps.deploy.outputs.url }}';
             const pr_number = context.issue.number;
+            const commit_sha = context.sha.substring(0, 7);
+            const timestamp = new Date().toUTCString();
 
-            // Find existing comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -164,14 +191,17 @@ jobs:
               comment.body.includes('Client App Preview')
             );
 
-            const body = `## 🔍 Client App Preview Deployment
-
-            ✅ **Status:** Ready
-            🔗 **Preview URL:** ${deployment_url}
-            📦 **Commit:** \`${context.sha.substring(0, 7)}\`
-            ⏰ **Updated:** ${new Date().toUTCString()}
-
-            > This preview will be automatically updated when you push new commits to this PR.`;
+            const body = [
+              '## Client App Preview Deployment',
+              '',
+              '| Status | Ready |',
+              '|--------|-------|',
+              `| Preview URL | ${deployment_url} |`,
+              `| Commit | \`${commit_sha}\` |`,
+              `| Updated | ${timestamp} |`,
+              '',
+              '> This preview will be automatically updated when you push new commits.',
+            ].join('\n');
 
             if (botComment) {
               await github.rest.issues.updateComment({

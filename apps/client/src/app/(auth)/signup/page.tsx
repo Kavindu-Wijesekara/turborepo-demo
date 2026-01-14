@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import { Turnstile } from "@/components/turnstile";
+
 import { signUpWithEmail, signUpWithGoogle } from "../actions";
 
 export default function SignUpPage() {

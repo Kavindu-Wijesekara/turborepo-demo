@@ -4,7 +4,7 @@
   "devCommand": "cd ../.. && npx turbo dev --filter=@acme/client",
   "installCommand": "pnpm install --frozen-lockfile",
   "public": false,
-  "github": {
-    "enabled": true
+  "git": {
+    "deploymentEnabled": false
   }
 }
