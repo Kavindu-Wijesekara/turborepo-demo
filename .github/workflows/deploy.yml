@@ -126,18 +126,6 @@ jobs:
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
 
-      - name: Install Vercel CLI
-        run: pnpm add -g vercel@latest
-
-      - name: Cache Vercel project
-        uses: actions/cache@v4
-        with:
-          path: apps/admin/.vercel
-          key: vercel-admin-prod-${{ github.sha }}
-          restore-keys: |
-            vercel-admin-prod-
-            vercel-admin-
-
       - name: Pull Vercel Environment Information
         run: |
           cd apps/admin
@@ -198,18 +186,6 @@ jobs:
 
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
-
-      - name: Install Vercel CLI
-        run: pnpm add -g vercel@latest
-
-      - name: Cache Vercel project
-        uses: actions/cache@v4
-        with:
-          path: apps/client/.vercel
-          key: vercel-client-prod-${{ github.sha }}
-          restore-keys: |
-            vercel-client-prod-
-            vercel-client-
 
       - name: Pull Vercel Environment Information
         run: |

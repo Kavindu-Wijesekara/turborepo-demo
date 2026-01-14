@@ -20,3 +20,7 @@ runs:
       run: pnpm install --frozen-lockfile
       env:
         HUSKY: 0
+
+    - name: Install Vercel CLI
+      shell: bash
+      run: pnpm add -g vercel@latest

@@ -94,33 +94,21 @@ jobs:
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
 
-      - name: Install Vercel CLI
-        run: pnpm add -g vercel@latest
-
-      - name: Cache Vercel project
-        uses: actions/cache@v4
-        with:
-          path: apps/admin/.vercel
-          key: vercel-admin-preview-${{ github.event.pull_request.head.sha }}
-          restore-keys: |
-            vercel-admin-preview-
-            vercel-admin-
-
       - name: Pull Vercel Environment Information
         run: |
           cd apps/admin
-          pnpm exec vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
         run: |
           cd apps/admin
-          pnpm exec vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy to Vercel
         id: deploy
         run: |
           cd apps/admin
-          DEPLOYMENT_URL=$(pnpm exec vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
 
       - name: Comment PR with preview URL
@@ -192,33 +180,21 @@ jobs:
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
 
-      - name: Install Vercel CLI
-        run: pnpm add -g vercel@latest
-
-      - name: Cache Vercel project
-        uses: actions/cache@v4
-        with:
-          path: apps/client/.vercel
-          key: vercel-client-preview-${{ github.event.pull_request.head.sha }}
-          restore-keys: |
-            vercel-client-preview-
-            vercel-client-
-
       - name: Pull Vercel Environment Information
         run: |
           cd apps/client
-          pnpm exec vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
         run: |
           cd apps/client
-          pnpm exec vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy to Vercel
         id: deploy
         run: |
           cd apps/client
-          DEPLOYMENT_URL=$(pnpm exec vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
 
       - name: Comment PR with preview URL
