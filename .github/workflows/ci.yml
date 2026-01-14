@@ -37,18 +37,3 @@ jobs:
 
       - name: Type checking
         run: pnpm check-types
-
-      # Build artifacts for reuse in preview/deploy workflows
-      - name: Build all apps
-        run: pnpm build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts-${{ github.sha }}
-          path: |
-            apps/admin/.next/**
-            apps/client/.next/**
-            node_modules/.cache/turbo/**
-          retention-days: 1
-          compression-level: 6
