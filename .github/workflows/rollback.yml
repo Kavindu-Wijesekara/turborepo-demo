@@ -1,0 +1,177 @@
+name: Rollback to Previous Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: "Which app to rollback"
+        required: true
+        type: choice
+        options:
+          - admin
+          - client
+          - both
+      commit_sha:
+        description: "Commit SHA to rollback to (leave empty for previous commit)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  deployments: write
+
+env:
+  HUSKY: 0
+  TURBO_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  TURBO_TEAM: ${{ secrets.VERCEL_ORG_ID }}
+  TURBO_TELEMETRY_DISABLED: 1
+
+jobs:
+  confirm-rollback:
+    name: Confirm Rollback Details
+    runs-on: ubuntu-latest
+    outputs:
+      target_sha: ${{ steps.determine-sha.outputs.sha }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 10
+
+      - name: Determine target commit
+        id: determine-sha
+        run: |
+          if [ -n "${{ inputs.commit_sha }}" ]; then
+            TARGET_SHA="${{ inputs.commit_sha }}"
+          else
+            # Get the previous commit from main
+            TARGET_SHA=$(git rev-parse HEAD~1)
+          fi
+          echo "sha=$TARGET_SHA" >> $GITHUB_OUTPUT
+          echo "### 🔄 Rollback Target" >> $GITHUB_STEP_SUMMARY
+          echo "**App:** ${{ inputs.app }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`$TARGET_SHA\`" >> $GITHUB_STEP_SUMMARY
+          git log -1 --pretty=format:"**Message:** %s%n**Author:** %an%n**Date:** %ad" $TARGET_SHA >> $GITHUB_STEP_SUMMARY
+
+  rollback-admin:
+    name: Rollback Admin
+    needs: confirm-rollback
+    if: inputs.app == 'admin' || inputs.app == 'both'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production-admin
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
+
+    steps:
+      - name: Checkout target commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.confirm-rollback.outputs.target_sha }}
+
+      - name: Setup monorepo
+        uses: ./.github/actions/setup-monorepo
+
+      - name: Pull Vercel Environment Information
+        run: pnpm exec vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/admin
+
+      - name: Build Project Artifacts
+        run: pnpm exec vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/admin
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(pnpm exec vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/admin)
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "### ✅ Admin Rolled Back Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 URL: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY
+          echo "📦 Commit: ${{ needs.confirm-rollback.outputs.target_sha }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create rollback notification
+        uses: actions/github-script@v7
+        if: success()
+        with:
+          script: |
+            const deployment_url = '${{ steps.deploy.outputs.url }}';
+            const target_sha = '${{ needs.confirm-rollback.outputs.target_sha }}'.substring(0, 7);
+
+            await github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `## 🔄 Admin App Rolled Back\n\n⚠️ **Status:** Rolled back to \`${target_sha}\`\n🔗 **URL:** ${deployment_url}\n👤 **Triggered by:** @${context.actor}\n⏰ **Time:** ${new Date().toUTCString()}`
+            });
+
+  rollback-client:
+    name: Rollback Client
+    needs: confirm-rollback
+    if: inputs.app == 'client' || inputs.app == 'both'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production-client
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_CLIENT_PROJECT_ID }}
+
+    steps:
+      - name: Checkout target commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.confirm-rollback.outputs.target_sha }}
+
+      - name: Setup monorepo
+        uses: ./.github/actions/setup-monorepo
+
+      - name: Pull Vercel Environment Information
+        run: pnpm exec vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/client
+
+      - name: Build Project Artifacts
+        run: pnpm exec vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/client
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(pnpm exec vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/client)
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "### ✅ Client Rolled Back Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 URL: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY
+          echo "📦 Commit: ${{ needs.confirm-rollback.outputs.target_sha }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create rollback notification
+        uses: actions/github-script@v7
+        if: success()
+        with:
+          script: |
+            const deployment_url = '${{ steps.deploy.outputs.url }}';
+            const target_sha = '${{ needs.confirm-rollback.outputs.target_sha }}'.substring(0, 7);
+
+            await github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `## 🔄 Client App Rolled Back\n\n⚠️ **Status:** Rolled back to \`${target_sha}\`\n🔗 **URL:** ${deployment_url}\n👤 **Triggered by:** @${context.actor}\n⏰ **Time:** ${new Date().toUTCString()}`
+            });
+
+  rollback-summary:
+    name: Rollback Summary
+    needs: [confirm-rollback, rollback-admin, rollback-client]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 🔄 Rollback Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Commit:** \`${{ needs.confirm-rollback.outputs.target_sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Admin: ${{ needs.rollback-admin.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Client: ${{ needs.rollback-client.result }}" >> $GITHUB_STEP_SUMMARY

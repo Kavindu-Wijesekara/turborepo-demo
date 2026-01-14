@@ -5,6 +5,11 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
+
 env:
   HUSKY: 0
   TURBO_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -36,11 +41,19 @@ jobs:
               - 'packages/db/**'
               - 'packages/types/**'
               - 'packages/utils/**'
+              - 'packages/eslint-config/**'
+              - 'packages/typescript-config/**'
+              - 'turbo.json'
+              - 'pnpm-workspace.yaml'
             client:
               - 'apps/client/**'
               - 'packages/ui/**'
               - 'packages/types/**'
               - 'packages/utils/**'
+              - 'packages/eslint-config/**'
+              - 'packages/typescript-config/**'
+              - 'turbo.json'
+              - 'pnpm-workspace.yaml'
             packages:
               - 'packages/**'
 
@@ -58,6 +71,7 @@ jobs:
           check-name: "Validate Code Quality"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
+          allowed-conclusions: success
 
   # Deploy Admin Preview (only if admin or related packages changed)
   preview-admin:
@@ -80,6 +94,15 @@ jobs:
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
 
+      - name: Cache Vercel project
+        uses: actions/cache@v4
+        with:
+          path: apps/admin/.vercel
+          key: vercel-admin-preview-${{ github.event.pull_request.head.sha }}
+          restore-keys: |
+            vercel-admin-preview-
+            vercel-admin-
+
       - name: Pull Vercel Environment Information
         run: pnpm exec vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/admin
 
@@ -98,7 +121,7 @@ jobs:
           script: |
             const deployment_url = '${{ steps.deploy.outputs.url }}';
             const pr_number = context.issue.number;
-            const commit_sha = context.sha.substring(0, 7);
+            const commit_sha = '${{ github.event.pull_request.head.sha }}'.substring(0, 7);
             const timestamp = new Date().toUTCString();
 
             const { data: comments } = await github.rest.issues.listComments({
@@ -161,6 +184,15 @@ jobs:
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
 
+      - name: Cache Vercel project
+        uses: actions/cache@v4
+        with:
+          path: apps/client/.vercel
+          key: vercel-client-preview-${{ github.event.pull_request.head.sha }}
+          restore-keys: |
+            vercel-client-preview-
+            vercel-client-
+
       - name: Pull Vercel Environment Information
         run: pnpm exec vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }} --cwd=apps/client
 
@@ -179,7 +211,7 @@ jobs:
           script: |
             const deployment_url = '${{ steps.deploy.outputs.url }}';
             const pr_number = context.issue.number;
-            const commit_sha = context.sha.substring(0, 7);
+            const commit_sha = '${{ github.event.pull_request.head.sha }}'.substring(0, 7);
             const timestamp = new Date().toUTCString();
 
             const { data: comments } = await github.rest.issues.listComments({

@@ -6,6 +6,9 @@ on:
   push:
     branches: [develop] # Only run on develop pushes, not main (deploy handles main)
 
+permissions:
+  contents: read
+
 env:
   HUSKY: 0
   TURBO_TELEMETRY_DISABLED: 1
