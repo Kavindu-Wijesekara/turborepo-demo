@@ -126,6 +126,9 @@ jobs:
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
 
+      - name: Install Vercel CLI
+        run: pnpm add -g vercel@latest
+
       - name: Cache Vercel project
         uses: actions/cache@v4
         with:
@@ -195,6 +198,9 @@ jobs:
 
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
+
+      - name: Install Vercel CLI
+        run: pnpm add -g vercel@latest
 
       - name: Cache Vercel project
         uses: actions/cache@v4
