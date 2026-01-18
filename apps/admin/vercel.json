@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "cd ../.. && npx turbo build --filter=@acme/admin",
   "devCommand": "cd ../.. && npx turbo dev --filter=@acme/admin",
-  "installCommand": "bun install --frozen-lockfile",
+  "installCommand": "",
   "public": false,
   "git": {
     "deploymentEnabled": false
