@@ -29,10 +29,10 @@ A modern, full-stack monorepo built with Next.js, React, TypeScript, and Tailwin
 
 ### Core
 
-- **Monorepo**: Turborepo + pnpm workspaces
-- **Runtime**: Node.js 18+
+- **Monorepo**: Turborepo + Bun workspaces
+- **Runtime**: Bun 1.3+
 - **Language**: TypeScript 5.9
-- **Package Manager**: pnpm 9.0
+- **Package Manager**: Bun 1.3+
 
 ### Applications
 
@@ -84,15 +84,14 @@ A modern, full-stack monorepo built with Next.js, React, TypeScript, and Tailwin
 ├── .husky/             # Git hooks
 ├── .changeset/         # Changeset config
 ├── turbo.json          # Turborepo configuration
-└── pnpm-workspace.yaml # Workspace configuration
+└── package.json        # Workspace configuration
 ```
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js >= 18
-- pnpm >= 9.0
+- Bun >= 1.3
 
 ### Installation
 
@@ -102,13 +101,13 @@ git clone <repository-url>
 cd test
 
 # Install dependencies
-pnpm install
+bun install
 
 # Setup environment variables
 cp .env.example .env.local
 
 # Initialize git hooks
-pnpm prepare
+bun run prepare
 ```
 
 ### Environment Variables
@@ -121,7 +120,7 @@ Create a `.env.local` file in the root directory. See [.env.example](./.env.exam
 
 ```bash
 # Start all applications in development mode
-pnpm dev
+bun dev
 
 # Access applications:
 # - Admin: http://localhost:3000
@@ -132,10 +131,10 @@ pnpm dev
 
 ```bash
 # Build all apps and packages
-pnpm build
+bun run build
 
 # Build specific app
-cd apps/admin && pnpm build
+cd apps/admin && bun run build
 ```
 
 ## 📜 Available Scripts
@@ -143,15 +142,15 @@ cd apps/admin && pnpm build
 ### Root Scripts
 
 ```bash
-pnpm dev              # Start development servers for all apps
-pnpm build            # Build all apps and packages
-pnpm lint             # Run ESLint on all packages
-pnpm lint:fix         # Fix linting issues
-pnpm format           # Format code with Prettier
-pnpm format:check     # Check formatting without fixing
-pnpm check-types      # Run TypeScript type checking
-pnpm changeset        # Create a new changeset
-pnpm changeset:version # Bump versions based on changesets
+bun dev              # Start development servers for all apps
+bun run build        # Build all apps and packages
+bun run lint         # Run ESLint on all packages
+bun run lint:fix     # Fix linting issues
+bun run format       # Format code with Prettier
+bun run format:check # Check formatting without fixing
+bun run check-types  # Run TypeScript type checking
+bun run changeset    # Create a new changeset
+bun run changeset:version # Bump versions based on changesets
 ```
 
 ### Database Scripts
@@ -159,11 +158,11 @@ pnpm changeset:version # Bump versions based on changesets
 ```bash
 cd packages/db
 
-pnpm generate         # Generate migrations
-pnpm migrate          # Run migrations
-pnpm push             # Push schema to database
-pnpm seed             # Seed development data
-pnpm studio           # Open Drizzle Studio
+bun run generate      # Generate migrations
+bun run migrate       # Run migrations
+bun run push          # Push schema to database
+bun run seed          # Seed development data
+bun run studio        # Open Drizzle Studio
 ```
 
 ## 🗄 Database
@@ -177,16 +176,16 @@ This monorepo uses **Drizzle ORM** with PostgreSQL.
 cd packages/db
 
 # Generate initial migration
-pnpm generate "initial schema"
+bun run generate "initial schema"
 
 # Run migrations
-pnpm migrate
+bun run migrate
 
 # Push to database (development)
-pnpm push
+bun run push
 
 # Seed with initial data
-pnpm seed
+bun run seed
 ```
 
 ### Schema
@@ -205,19 +204,19 @@ Migrations are stored in [packages/db/drizzle/](./packages/db/drizzle/) director
 
 ```bash
 # Build all applications
-pnpm build
+bun run build
 
 # Build specific application
-cd apps/admin && pnpm build
+cd apps/admin && bun run build
 ```
 
 ## 🤝 Contributing
 
 ### Before Committing
 
-1. Format code: `pnpm format`
-2. Fix linting issues: `pnpm lint:fix`
-3. Type check: `pnpm check-types`
+1. Format code: `bun run format`
+2. Fix linting issues: `bun run lint:fix`
+3. Type check: `bun run check-types`
 
 Git hooks will automatically run on commit (pre-commit).
 
@@ -226,7 +225,7 @@ Git hooks will automatically run on commit (pre-commit).
 When making changes that affect package versions:
 
 ```bash
-pnpm changeset
+bun run changeset
 ```
 
 Follow the prompts to select packages and version bump type.
