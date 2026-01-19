@@ -1,5 +1,9 @@
 name: Deploy Admin Preview
 
+permissions:
+  pull-requests: write
+  issues: write
+
 env:
   HUSKY: 0
   TURBO_TOKEN: ${{ secrets.VERCEL_TOKEN }}
