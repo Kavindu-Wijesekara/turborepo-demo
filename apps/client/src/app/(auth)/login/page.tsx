@@ -12,12 +12,15 @@ import {
 import { Input } from "@acme/ui/components/input";
 import { Label } from "@acme/ui/components/label";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+
+import { Turnstile } from "@/components/turnstile";
 
 import { signInWithEmail, signInWithGoogle } from "../actions";
 
 export default function LoginPage() {
   const [state, formAction] = useActionState(signInWithEmail, null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   return (
     <Card className="w-full">
@@ -32,6 +35,17 @@ export default function LoginPage() {
             <Label htmlFor="email">Email</Label>
             <Input id="email" name="email" type="email" placeholder="name@example.com" required />
           </div>
+
+          {/* Turnstile Captcha */}
+          <div className="flex justify-center">
+            <Turnstile
+              onSuccess={(token) => setCaptchaToken(token)}
+              onExpire={() => setCaptchaToken(null)}
+              onError={() => setCaptchaToken(null)}
+            />
+          </div>
+          <input type="hidden" name="captchaToken" value={captchaToken || ""} />
+
           {state?.message && (
             <p className={`text-sm ${state.success ? "text-green-600" : "text-red-600"}`}>
               {state.message}
@@ -42,7 +56,7 @@ export default function LoginPage() {
               )}
             </p>
           )}
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" disabled={!captchaToken}>
             Continue with Email
           </Button>
         </form>

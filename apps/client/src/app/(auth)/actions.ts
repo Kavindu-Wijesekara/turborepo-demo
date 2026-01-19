@@ -27,6 +27,15 @@ export async function signUpWithEmail(
   formData: FormData
 ): Promise<AuthState> {
   const email = formData.get("email") as string;
+  const captchaToken = formData.get("captchaToken") as string;
+
+  // Validate captcha token
+  if (!captchaToken) {
+    return {
+      success: false,
+      message: "Please complete the captcha verification.",
+    };
+  }
 
   // Pre-check: Reject if user already exists in DB
   const userExists = await checkUserExistsByEmail(email);
@@ -42,6 +51,7 @@ export async function signUpWithEmail(
     email,
     options: {
       emailRedirectTo: getRedirectUrl("signup"),
+      captchaToken,
     },
   });
 
@@ -58,6 +68,15 @@ export async function signInWithEmail(
   formData: FormData
 ): Promise<AuthState> {
   const email = formData.get("email") as string;
+  const captchaToken = formData.get("captchaToken") as string;
+
+  // Validate captcha token
+  if (!captchaToken) {
+    return {
+      success: false,
+      message: "Please complete the captcha verification.",
+    };
+  }
 
   // Pre-check: Reject if user doesn't exist in DB
   const userExists = await checkUserExistsByEmail(email);
@@ -73,6 +92,7 @@ export async function signInWithEmail(
     email,
     options: {
       emailRedirectTo: getRedirectUrl("login"),
+      captchaToken,
     },
   });
 

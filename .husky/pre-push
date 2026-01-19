@@ -3,13 +3,13 @@ set -e
 echo "🚀 Running pre-push validation..."
 
 echo "📝 Checking types..."
-if ! pnpm check-types; then
+if ! bun check-types; then
   echo "❌ TypeScript type check failed. Please check the output above and fix type errors."
   exit 1
 fi
 
 echo "🏗️  Building packages..."
-if ! pnpm build; then
+if ! bun run build; then
   echo "❌ Build failed. Please check the output above and fix build errors."
   exit 1
 fi

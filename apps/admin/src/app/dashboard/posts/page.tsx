@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@acme/ui/components/ca
 
 import { DeleteButton } from "@/components/delete-button";
 
+// Force dynamic rendering - this page requires database access
+export const dynamic = "force-dynamic";
+
 import { deletePost } from "./actions";
 
 export default async function PostsPage() {
