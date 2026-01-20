@@ -1,9 +1,5 @@
 name: Deploy Admin Preview
 
-permissions:
-  pull-requests: write
-  issues: write
-
 env:
   HUSKY: 0
   TURBO_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -33,52 +29,5 @@ jobs:
         run: bunx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts
         run: bunx vercel build --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Deploy Preview to Vercel
-        id: deploy
-        run: |
-          DEPLOYMENT_URL=$(bunx vercel deploy --prebuilt --archive=tgz --token=${{ secrets.VERCEL_TOKEN }})
-          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-          echo "Deployment URL: $DEPLOYMENT_URL"
-
-      - name: Comment on PR - Success
-        if: success()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const deploymentUrl = '${{ steps.deploy.outputs.url }}';
-            const comment = `## ✅ Admin Preview Deployment Successful
-
-            **Deployment URL:** ${deploymentUrl}
-
-            **Environment:** Preview
-            **Commit:** ${{ github.event.pull_request.head.sha }}
-            **Branch:** ${{ github.head_ref }}
-
-            The preview deployment is ready for review!`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
-
-      - name: Comment on PR - Failure
-        if: failure()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const comment = `## ❌ Admin Preview Deployment Failed
-
-            **Environment:** Preview
-            **Commit:** ${{ github.event.pull_request.head.sha }}
-            **Branch:** ${{ github.head_ref }}
-
-            The deployment failed. Please check the [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
+      - name: Deploy to Vercel
+        run: bunx vercel deploy --prebuilt --archive=tgz --token=${{ secrets.VERCEL_TOKEN }}
